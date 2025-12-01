@@ -25,6 +25,8 @@ Feature: Order Process
     Scenario: Lpo fulfillment
     Given enter user name
     When user click buttons
+    And enter second name
+    And enter country code
     
     Scenario: Stok in Process 
     Scenario: Order Compilation
