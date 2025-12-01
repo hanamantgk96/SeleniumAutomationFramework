@@ -32,4 +32,5 @@ Feature: Order Process
     Scenario: Order Compilation
     Scenario: Delivery Schedule
     Scenario: Order Invoicing
+    Scenario: generate invoice
     
