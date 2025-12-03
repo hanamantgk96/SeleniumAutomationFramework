@@ -22,6 +22,7 @@ Background:
     Then The order is created successfully
   
   @Regression  
+  ##testing
   Scenario: Lpo creating
     Given User Navigate to the create LPO page
     And Select products which is approved
