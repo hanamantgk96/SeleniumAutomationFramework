@@ -8,7 +8,7 @@ import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = "src/test/java/featureFiles",
-		tags="@Regression",
+		tags=" @OrderModule",
 		glue = { "stepDefinitions" }, 		 
 		dryRun=false,
 		monochrome = true,

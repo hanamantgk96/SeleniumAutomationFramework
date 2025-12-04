@@ -9,11 +9,11 @@ Background:
     Then Page Title should be "FRESHONTABLE"
     And Close the browser
 
+   @OrderModule
   Scenario: Place an order
     Given User navigates to the Place Order page
     And User selects a business from the list
-    And User selects the products
-    And User enters the product quantity
+    And User selects the products and enters product quantity
     Then User selects the payment method
     And User selects the shipping date
     And User selects the billing address and shipping address
@@ -22,7 +22,6 @@ Background:
     Then The order is created successfully
   
   @Regression  
-  ##testing
   Scenario: Lpo creating
     Given User Navigate to the create LPO page
     And Select products which is approved
