@@ -57,7 +57,7 @@ public class LoginPage {
 	public boolean loginValidation() {
 		String title = driver.findElement(LoginVali).getText();
 	    if (title.equals("FRESHONTABLE")) {
-	        System.out.println("Login Successful");
+	        System.out.println("Login Successful and title name is " + title);
 	        return true;
 	    } else {
 	        System.out.println("Login validation Failed");

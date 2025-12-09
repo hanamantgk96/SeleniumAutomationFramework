@@ -7,7 +7,7 @@ public class objectManager {
 	public WebDriver driver;
 	
 	public LoginPage loginPage;
-	public LpoPage Lpopage;
+	public Lpopage Lpopage;
 	public Placeorder placeorder;
 	
 	public objectManager(WebDriver driver) {
@@ -19,8 +19,8 @@ public class objectManager {
 		return loginPage;
 	}
 	
-	public LpoPage getLpopage() {
-		Lpopage = new LpoPage(driver);
+	public Lpopage getLpopage() {
+		Lpopage = new Lpopage(driver);
 		return Lpopage;
 	}
 	
