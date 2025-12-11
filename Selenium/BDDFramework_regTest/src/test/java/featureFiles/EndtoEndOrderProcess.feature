@@ -33,6 +33,7 @@ Background:
   Given User navigates to the Order Compilation page
   When the user reserves the stock
   Then the stock is reserved successfully
+  And close the broser
   
  @delivery
 Scenario: Create a delivery schedule
