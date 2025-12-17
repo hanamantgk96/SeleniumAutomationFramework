@@ -10,6 +10,7 @@ public class objectManager {
 	public Lpopage Lpopage;
 	public Placeorder placeorder;
 	public OrderCompilation orderCompilation;
+	public DeliveryModule deliveryModule;
 
 	public objectManager(WebDriver driver) {
 		this.driver = driver;
@@ -34,6 +35,12 @@ public class objectManager {
 	public OrderCompilation getOrderCompilation() {
 		orderCompilation = new OrderCompilation(driver);
 				return orderCompilation;
+		
+	}
+	
+	public DeliveryModule getdeliveryModule()  {
+		deliveryModule = new DeliveryModule(driver);
+				return deliveryModule;
 		
 	}
 	
