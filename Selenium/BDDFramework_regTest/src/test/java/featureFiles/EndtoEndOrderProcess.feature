@@ -28,12 +28,14 @@ Background:
     #And Got to third page and select the Delivery Hub
     #Then Click submit button and click confirm
     #And LPO is successfully created 
-      
+    
+    
+    @compilation  
   Scenario: Order Compilation
   Given User navigates to the Order Compilation page
   When the user reserves the stock
   Then the stock is reserved successfully
-  And close the broser
+  And close the browser
   
  @delivery
 Scenario: Create a delivery schedule

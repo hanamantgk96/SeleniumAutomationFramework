@@ -63,6 +63,14 @@ public class OrderCompilation {
 	
 	public void stockReserve() throws InterruptedException {
 		
+		driver.findElement(By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]")).click();
+		
+		Thread.sleep(2000);
+		
+		driver.findElement(By.xpath("//a[text()='Reserve Batch']")).click();
+		
+		Thread.sleep(1000);
+		
 		driver.findElement(By.xpath("//button[text()='SUBMIT']")).click();
 		Thread.sleep(2000);
 		

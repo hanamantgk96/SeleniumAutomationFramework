@@ -249,25 +249,27 @@ public class DeliveryModule {
 	
 	public void CompletingSchedule() throws InterruptedException {
 		
-	//	WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
+//	//	WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
+//		
+//		driver.findElement(By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]")).click();
+//		
+//		 By searchBoxLocator = By.xpath("//input[@type='text' and @placeholder='Scheduled ID']");
+//		 
+//		 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//		 
+//		 	    WebElement searchBox = wait.until(
+//		 	            ExpectedConditions.elementToBeClickable(searchBoxLocator)
+//		 	    );
+//		 	    
+//		 	    Thread.sleep(2000);
+//		 	    searchBox.sendKeys("160809");
+//		 	   searchBox.sendKeys(Keys.ENTER);
+//		 	   
+//		 	   Thread.sleep(2000);
 		
-		driver.findElement(By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]")).click();
+		Thread.sleep(2000);
 		
-		 By searchBoxLocator = By.xpath("//input[@type='text' and @placeholder='Scheduled ID']");
-		 
-		 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		 
-		 	    WebElement searchBox = wait.until(
-		 	            ExpectedConditions.elementToBeClickable(searchBoxLocator)
-		 	    );
-		 	    
-		 	    Thread.sleep(2000);
-		 	    searchBox.sendKeys("160809");
-		 	   searchBox.sendKeys(Keys.ENTER);
-		 	   
-		 	   Thread.sleep(2000);
-		
-		driver.findElement(By.xpath("//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success']")).click();
+		driver.findElement(By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]")).click();
 		
 		Thread.sleep(2000);
 		
@@ -283,7 +285,7 @@ public class DeliveryModule {
 		
 		Thread.sleep(2000);
 
-		WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(20));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
 		int businessCount = driver.findElements(
 		        By.xpath("//div[contains(@class,'accordion-header')]")
@@ -291,89 +293,74 @@ public class DeliveryModule {
 
 		for (int i = 0; i < businessCount; i++) {
 
-		    // Open business
 		    List<WebElement> businesses = driver.findElements(
 		            By.xpath("//div[contains(@class,'accordion-header')]")
 		    );
 		    WebElement currentBusiness = businesses.get(i);
-		    wait1.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+		    wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
 		    Thread.sleep(2000);
 
-		    boolean anyPendingOrder = false;
+		    while (true) {
 
-		    List<WebElement> orders = driver.findElements(
-		            By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
-		    );
-
-		    for (int j = 0; j < orders.size(); j++) {
-
-		        // Re-fetch orders (DOM safe)
-		        orders = driver.findElements(
+		        List<WebElement> orders = driver.findElements(
 		                By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
 		        );
-		        WebElement orderRow = orders.get(j);
 
-		        /* ✅ CHECK ORDER STATUS */
-		        boolean isCompleted = orderRow.findElements(
-		                By.xpath(".//div[@title='Completed']")
-		        ).size() > 0;
+		        WebElement pendingOrder = null;
 
-		        if (isCompleted) {
-		            System.out.println("Order already completed, skipping...");
-		            continue;
+		        for (WebElement order : orders) {
+		            boolean isCompleted = order.findElements(
+		                    By.xpath(".//div[@title='Completed']")
+		            ).size() > 0;
+
+		            if (!isCompleted) {
+		                pendingOrder = order;
+		                break;
+		            }
 		        }
 
-		        anyPendingOrder = true;
+		        if (pendingOrder == null) {
+		            System.out.println("All orders completed for business " + (i + 1));
+		            wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+		            Thread.sleep(1500);
+		            break;
+		        }
 
-		        /* Click More */
-		        WebElement moreBtn = orderRow.findElement(
+		        WebElement moreBtn = pendingOrder.findElement(
 		                By.xpath(".//button[contains(@class,'actions-dropdown')]")
 		        );
-		        wait1.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
+		        wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
 
-		        /* Change Status */
-		        wait1.until(ExpectedConditions.elementToBeClickable(
+		        wait.until(ExpectedConditions.elementToBeClickable(
 		                By.xpath("//a[normalize-space()='Change Status']")
 		        )).click();
 
-		        /* Select Completed */
-		        WebElement statusDropdown = wait1.until(
+		        WebElement statusDropdown = wait.until(
 		                ExpectedConditions.presenceOfElementLocated(By.name("selectedStatus"))
 		        );
 		        new Select(statusDropdown).selectByVisibleText("Completed");
 
-		        /* Comment */
-		        WebElement comment = wait1.until(
+		        WebElement comment = wait.until(
 		                ExpectedConditions.elementToBeClickable(By.name("comment"))
 		        );
 		        comment.clear();
 		        comment.sendKeys("Schedule Completed Successfully");
 
-		        /* Submit */
-		        wait1.until(ExpectedConditions.elementToBeClickable(
+		        wait.until(ExpectedConditions.elementToBeClickable(
 		                By.xpath("//button[normalize-space()='Submit']")
 		        )).click();
 
 		        Thread.sleep(2000);
 
-		        // Re-open business after submit
 		        businesses = driver.findElements(
 		                By.xpath("//div[contains(@class,'accordion-header')]")
 		        );
 		        currentBusiness = businesses.get(i);
-		        wait1.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+		        wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
 		        Thread.sleep(1500);
 		    }
-
-		    /* ✅ If no pending orders, close business and move on */
-		    if (!anyPendingOrder) {
-		        System.out.println("No pending orders in business " + (i + 1));
-		        wait1.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-		        Thread.sleep(1500);
-		    }
-
-		    System.out.println("Business " + (i + 1) + " completed");
 		}
+
 
 }
 }
