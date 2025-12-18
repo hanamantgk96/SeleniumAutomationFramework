@@ -1,6 +1,7 @@
 package stepDefinitions;
 
 import pageObject.LoginPage;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -16,7 +17,7 @@ public class Steps {
 
 }
 	
-	@Given("User Launch the Chrome browser")
+	@Given("User Launch the browser")
 	public void user_launch_the_chrome_browser() {
 		LoginPage login = setupclass.pageObjectManager.getLoginPage1();
 	}
@@ -65,8 +66,8 @@ public class Steps {
 		LoginPage login = setupclass.pageObjectManager.getLoginPage1();
 	}
 
-	@Then("Close the browser")
-	public void close_the_browser() {
+	@And("Log in is successfull")
+	public void logged_in_success() {
 		LoginPage login = setupclass.pageObjectManager.getLoginPage1();
 //		login.quiteBrowser();
 	}

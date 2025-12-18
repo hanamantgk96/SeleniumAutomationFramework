@@ -1,15 +1,19 @@
+
+
 @Regression
-Feature: Order Process
+
+Feature: End to End order module
 
 Background:
-    Given User Launch the Chrome browser
+    Given User Launch the browser
     When User opens URL "https://mktadmin.freshontable.com/"
     And User enters username "UAEADMIN" and password "Admin@4321"
     And Click on login button
     Then Page Title should be "FRESHONTABLE"
-    And Close the browser
+    And Log in is successfull
+    
 
- Scenario: Place an order
+ Scenario: Order Creation
     Given User navigates to the Place Order page
     And User selects a business from the list
     And User selects the products and enters product quantity
@@ -36,14 +40,17 @@ Background:
     And User verifies and approves the LPO
     Then LPO is completed successfully 
      
- # Scenario: Order Compilation
- # Given User navigates to the Order Compilation page
- # When the user reserves the stock
- # Then the stock is reserved successfully
+  Scenario: Order Compilation
+  Given User navigates to the Order Compilation page
+  And Search the order Id
+  Then Clicks more button and Reserve Batch
+  When the user reserves the stock
+  And Check details and Submit it
+  Then the stock is reserved successfully
 
   
  #@delivery
-#Scenario: Create a delivery schedule
+#Scenario: Delivery Schedule
   #Given the user navigates to the Delivery module
   #Then the user clicks on the "Create Delivery Schedule" button
   #And the user filters the order by Order ID and updates the driver
@@ -54,10 +61,6 @@ Background:
   #Then the delivery schedule is created successfully
  
   
-    
-  #  Scenario: Lpo fulfillment   
-  #  Scenario: Stok in Process 
-  #  Scenario: Order Compilation
   #  Scenario: Delivery Schedule
   #  Scenario: Order Invoicing
     
