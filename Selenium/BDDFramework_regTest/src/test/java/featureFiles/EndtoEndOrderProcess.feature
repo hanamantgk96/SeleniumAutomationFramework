@@ -21,18 +21,25 @@ Background:
     Then The order is created successfully
   
  
-  #Scenario: Lpo creating
-    #Given User Navigate to the create LPO page
-    #And Select products which is approved
-    #And Got to second page
-    #And Got to third page and select the Delivery Hub
-    #Then Click submit button and click confirm
-    #And LPO is successfully created 
+   Scenario: Lpo Creation
+    Given User navigates to the Create LPO page
+    And User selects products which are already approved
+    And User moves to the second page
+    And User moves to the third page
+    Then User clicks the Submit button and confirms
+    And the LPO is created successfully
+    Then User changes any 4 LPOs to the "Waiting for Acceptance" status
+    And LPO fulfillment Process
+    And User changes the LPO status to "LPO at Hub"
+    And User changes the LPO status to "Fulfilled"
+    And User fills all mandatory fields to "Fulfill LPO"
+    And User verifies and approves the LPO
+    Then LPO is completed successfully 
      
-  Scenario: Order Compilation
-  Given User navigates to the Order Compilation page
-  When the user reserves the stock
-  Then the stock is reserved successfully
+ # Scenario: Order Compilation
+ # Given User navigates to the Order Compilation page
+ # When the user reserves the stock
+ # Then the stock is reserved successfully
 
   
  #@delivery

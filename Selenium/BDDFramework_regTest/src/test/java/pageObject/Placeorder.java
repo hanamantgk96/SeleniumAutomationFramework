@@ -67,7 +67,7 @@ public class Placeorder {
 	        "//input[contains(@class,'grid-checkbox-input') and @type='checkbox' and not(@disabled)]"
 	    ));
 
-	    int numberOfProductsToSelect = 5;
+	    int numberOfProductsToSelect = 4;
 	    Set<Integer> randomIndexes = new HashSet<>();
 
 	    int maxSelectable = Math.min(numberOfProductsToSelect, products.size());
@@ -281,12 +281,11 @@ public class Placeorder {
 	
 	driver.findElement(By.xpath("//button[text()='Review Order']")).click();
 	driver.findElement(By.xpath("//button[text()='Place Order']")).click();
-//	driver.findElement(By.xpath("//button[text()='No']")).click();
-			
-			   System.out.println("Order created successfully");
-			   System.out.println("Status Passed");
-			   
+
 	   
+	   System.out.println("Order created successfully");
+	   System.out.println("Status Passed");
+		 
 	}
 	
 	public String captureOrderId() {

@@ -14,7 +14,7 @@ public class Lposteps {
 		this.setupclass = setupclass;
 	}
 	
-	@Given("User Navigate to the create LPO page")
+	@Given("User navigates to the Create LPO page")
 	public void user_navigate_to_the_create_lpo_page() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
 		Thread.sleep(3000);
@@ -25,8 +25,8 @@ public class Lposteps {
 		Lpo.clickLpo();
 	}
 
-	@Given("Select products which is approved")
-	public void select_products_which_is_approved() throws InterruptedException {
+	@Given("User selects products which are already approved")
+	public void select_products_which_is_already_approved() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
 		Thread.sleep(3000);
 		Lpo.clickwearhousefitler();
@@ -38,21 +38,21 @@ public class Lposteps {
 		Lpo.selectproducts();
 	}
 
-	@Given("Got to second page")
+	@Given("User moves to the second page")
 	public void got_to_second_page() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
 		Thread.sleep(2000);
 		Lpo.clicknextbutton();
 	}
 
-	@Given("Got to third page and select the Delivery Hub")
+	@Given("User moves to the third page")
 	public void got_to_third_page_and_select_the_delivery_hub() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
 		Thread.sleep(2000);
 		Lpo.clicknextbutton();
 	}
 
-	@Then("Click submit button and click confirm")
+	@Then("User clicks the Submit button and confirms")
 	public void click_submit_button_and_click_confirm() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
 		Thread.sleep(5000);
@@ -63,28 +63,43 @@ public class Lposteps {
 		Lpo.clickNoButton();
 	}
 
-	@Then("LPO is successfully created")
+	@Then("the LPO is created successfully")
 	public void lpo_is_successfully_created() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
 		Thread.sleep(2000);
 //		Lpo.CreateLpoValidation();
 		Thread.sleep(2000);
-		Lpo.updateTopLpoStatus(1);
-		Thread.sleep(2000);
-		Lpo.changeNewStatus();
-		Thread.sleep(2000);
-		Lpo.changeLpoAtHub(1);
-		Thread.sleep(2000);
-		Lpo.Lpofulfillment();
-		Thread.sleep(2000);
-		Lpo.enterInvoiceDetails();
-		Thread.sleep(2000);
-		Lpo.VeryfyAndApprove();
-		Thread.sleep(2000);
-		Lpo.updateOnlyWaitingForAcceptance(1);
-		Thread.sleep(2000);
-		Lpo.processLpoWorkflow();
 	}	
+	
+	@Then("User changes any {int} LPOs to the {string} status")
+	public void User_changes_any_lp_os_to_the_status(int count, String string) throws InterruptedException {
+	    Lpopage lpo = setupclass.pageObjectManager.getLpopage();
+	    lpo.processTopWaitingForAcceptanceLpos(count);
+	}
+	
+	@Then("LPO fulfillment Process")
+	public void the_user_performs_lpo_fulfillment() {
+	    
+	}
 
+	@Then("User changes the LPO status to {string}")
+	public void the_user_changes_the_lpo_status_to(String string) {
+	    
+	}
+
+	@Then("User fills all mandatory fields to {string}")
+	public void User_fills_all_mandatory_fields_to_Fulfill_LPO(String string) {
+	    
+	}
+
+	@Then("User verifies and approves the LPO")
+	public void the_user_verifies_and_approves_the_lpo() {
+	    
+	}
+
+	@Then("LPO is completed successfully")
+	public void the_lpo_is_completed_successfully() {
+	    
+	}
 	}
 

@@ -1,8 +1,10 @@
 package pageObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -16,6 +18,8 @@ import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 
 
 
@@ -91,7 +95,7 @@ Thread.sleep(1000);
 	    List<WebElement> checkboxes = driver.findElements(selectproducts);
 	    System.out.println(checkboxes.size());
 
-	    for (int i = 0; i < 3 && i < checkboxes.size(); i++) {
+	    for (int i = 0; i < 4 && i < checkboxes.size(); i++) {
 	        WebElement checkbox = checkboxes.get(i);
 	        if (!checkbox.isSelected()) {
 	            checkbox.click();
@@ -115,186 +119,108 @@ Thread.sleep(1000);
 		driver.findElement(NoButton).click();
 	}
 	
-	public void CreateLpoValidation() {
+/*	public void CreateLpoValidation() {
 		WebElement element = driver.findElement(By.xpath("/html/body/div[1]/div/div[2]/div[2]/div[1]/div/div[2]/button"));
 		String expectedValue = "Create LPOs";
         String actualValue = element.getText();	        
         Assert.assertEquals(actualValue, expectedValue, "The values don't match!");
         System.out.println("Lpo created sucessfully : " + actualValue);
-	}
+	}*/
 	
-	public void updateTopLpoStatus(int countToUpdate) throws InterruptedException {
+	public void processTopWaitingForAcceptanceLpos(int maxCount) throws InterruptedException {
 
-	    Thread.sleep(1000); // wait for table to load
-
-	    // Locate all rows in the LPO table
 	    List<WebElement> rows = driver.findElements(By.xpath("//table//tbody//tr"));
-	    System.out.println("Total rows in LPO table: " + rows.size());
-
-	    int updatedCount = 0;
+	    int processed = 0;
 
 	    for (int i = 1; i <= rows.size(); i++) {
 
-	        if (updatedCount == countToUpdate) {
-	            break; // stop after updating required number
+	        if (processed == maxCount) break;
+
+	        String status = driver.findElement(
+	            By.xpath("//table//tbody//tr[" + i + "]/td[11]")
+	        ).getText().trim();
+
+	        if (!status.equalsIgnoreCase("Waiting For Acceptance")) {
+	            continue;
 	        }
 
-	        // Locate Status column (9th column) — adjust index if needed
-	        WebElement statusElement = driver.findElement(
-	                By.xpath("//table//tbody//tr[" + i + "]/td[11]"));
-
-	        String statusText = statusElement.getText().trim();
-	        System.out.println("Row " + i + " → Status: " + statusText);
-
-	        // Check match
-	        if (statusText.equalsIgnoreCase("Waiting For Acceptance")) {
-
-	        	// Click More button
-	        	WebElement moreButton = driver.findElement(
-	        	        By.xpath("//table//tbody//tr[" + i + "]/td[last()]//button"));
-	        	moreButton.click();
-	        	Thread.sleep(800);
-
-	        	// Locate dropdown menu inside the same row
-	        	WebElement changeStatusOption = driver.findElement(
-	        	        By.xpath("//a[contains(text(),'Change Status')]")
-	        	);
-
-	        	// Click Change Status
-	        	changeStatusOption.click();
-
-	            System.out.println("Status updated for row " + i);
-
-	            updatedCount++;
-	            Thread.sleep(2000);
-	        }
+	        processSingleLpo(i);
+	        processed++;
 	    }
+	}
 
-	    System.out.println("Total updated LPOs: " + updatedCount);
-	        
+	
+	private void processSingleLpo(int rowIndex) throws InterruptedException {
+
+	    changeStatus(rowIndex, "Accepted But Unfulfilled");
+	    changeStatus(rowIndex, "LPO At Hub");
+	    Lpofulfillment(rowIndex);
+	    enterInvoiceDetails(rowIndex);
+	    veryfyAndApprove(rowIndex);
 	}
 	
-	public void changeNewStatus() {
+	private void changeStatus(int rowIndex, String statusText) throws InterruptedException {
 
 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 
-	    // 1️⃣ Locate the <select> element
-	    WebElement dropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(
-	            By.name("selectedStatus")
+	    // Click correct row "More"
+	    WebElement moreBtn = wait.until(ExpectedConditions.elementToBeClickable(
+	            By.xpath("//table//tbody//tr[" + rowIndex + "]//button[contains(@class,'dropdown-toggle')]")
 	    ));
+	    moreBtn.click();
 
-	    // 2️⃣ Use Select class to choose an option
-	    Select select = new Select(dropdown);
-
-	    // You can select by visible text OR value:
-	    select.selectByVisibleText("Accepted But Unfulfilled");
-	    // select.selectByValue("109");  // Same option if you want by value
-
-	    // 3️⃣ Enter comments
-	    WebElement comments = wait.until(ExpectedConditions.visibilityOfElementLocated(
-	            By.xpath("//textarea[@name='sName']")));
-	    
-	    comments.sendKeys("Status updated automatically.");
-
-	    // 4️⃣ Click Submit
-	    WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//button[normalize-space()='Submit']")
+	    // Click Change Status from SAME row
+	    WebElement changeStatus = wait.until(ExpectedConditions.elementToBeClickable(
+	            By.xpath("//table//tbody//tr[" + rowIndex + "]//a[contains(text(),'Change Status')]")
 	    ));
-	    submitBtn.click();
+	    changeStatus.click();
 
-	    // 5️⃣ Click Confirm
-	    WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//button[normalize-space()='Confirm']")
+	    // Select new status
+	    Select select = new Select(wait.until(
+	            ExpectedConditions.visibilityOfElementLocated(By.name("selectedStatus"))
 	    ));
-	    confirmBtn.click();
+	    select.selectByVisibleText(statusText);
 
-	    System.out.println("Status updated successfully!");
-	    
-	    //click ok
-	    WebElement ok = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[normalize-space()='OK']")
-        ));
-        ok.click();
+	    driver.findElement(By.xpath("//textarea[@name='sName']"))
+	            .sendKeys("Status updated automatically");
+
+	    driver.findElement(By.xpath("//button[normalize-space()='Submit']")).click();
+	    driver.findElement(By.xpath("//button[normalize-space()='Confirm']")).click();
+//	    driver.findElement(By.xpath("//button[normalize-space()='OK']")).click();
+	    WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(5));
+try {
+	    WebElement okBtn = wait.until(
+		    ExpectedConditions.elementToBeClickable(
+		        By.xpath("//div[@id='react-confirm-alert']//button[normalize-space()='OK']")
+		    )
+		);
+		okBtn.click();
+		System.out.println("OK popup clicked successfully");
+
+	    System.out.println("Row " + rowIndex + " → Status changed to: " + statusText);
+	}catch (Exception e) {
+        System.out.println("No OK popup displayed.");
+    }
+    }
+
+
+	public void Lpofulfillment(int rowIndex) {
+
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+	    WebElement moreBtn = wait.until(ExpectedConditions.elementToBeClickable(
+	            By.xpath("//table//tbody//tr[" + rowIndex + "]//button[contains(@class,'dropdown-toggle')]")
+	    ));
+	    moreBtn.click();
+
+	    WebElement option = wait.until(ExpectedConditions.elementToBeClickable(
+	            By.xpath("//table//tbody//tr[" + rowIndex + "]//a[contains(text(),'Fullfill LPO')]")
+	    ));
+	    option.click();
 	}
 
-	public void changeLpoAtHub(int rowIndex) throws InterruptedException {
-	 
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-//		Thread.sleep(2000);
-//		driver.findElement(By.xpath("//table//tbody//tr[\" + rowIndex + \"]//button[contains(@class,'dropdown-toggle')]")).click();		
-//		WebElement moreButton = driver.findElement(
-//                By.xpath("//table//tbody//tr/td[last()]//button"));
-//        moreButton.click();
-		
-		WebElement moreBtn = wait.until(ExpectedConditions.elementToBeClickable(
-		        By.xpath("//table//tbody//tr[" + rowIndex + "]//button[contains(@class,'dropdown-toggle')]")
-		    ));
-		    moreBtn.click();
-        
-		WebElement option = driver.findElement(By.xpath("//a[@class='dropdown-item'][4]"));
-        option.click();
-		
-//	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
 
-	    // 1️⃣ Locate the <select> element
-	    WebElement dropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(
-	            By.name("selectedStatus")
-	    ));
-
-	    // 2️⃣ Use Select class to choose an option
-	    Select select = new Select(dropdown);
-
-	    // You can select by visible text OR value:
-	    Thread.sleep(1000);
-	    select.selectByVisibleText("LPO At Hub");
-	    // select.selectByValue("109");  // Same option if you want by value
-
-	    // 3️⃣ Enter comments
-	    WebElement comments = wait.until(ExpectedConditions.visibilityOfElementLocated(
-	            By.xpath("//textarea[@name='sName']")));
-	    
-	    comments.sendKeys("Status updated automatically.");
-
-	    // 4️⃣ Click Submit
-	    WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//button[normalize-space()='Submit']")
-	    ));
-	    submitBtn.click();
-
-	    // 5️⃣ Click Confirm
-	    WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//button[normalize-space()='Confirm']")));
-	    confirmBtn.click();
-
-	    System.out.println("Status updated successfully!");
-	    
-	  //click ok
-	    Thread.sleep(2000);
-	    WebElement ok = wait.until(ExpectedConditions.elementToBeClickable(
-               By.xpath("//button[normalize-space()='OK']")
-        ));
-        ok.click();
-	   
- //   WebElement ok1=  driver.findElement(By.xpath("//button[normalize-space()='OK']"));
- //       ok1.click();
-
-	}
-	
-public void Lpofulfillment() throws InterruptedException {
-	
-		WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(2));
-//		driver.findElement(By.xpath("(//div//button[@class='actions-dropdown dropdown-toggle btn btn-success'])[1]")).click();
-		
-		WebElement moreButton = driver.findElement(
-                By.xpath("//table//tbody//tr/td[last()]//button"));
-        moreButton.click();
-		
-		WebElement option = driver.findElement(By.xpath("//a[@class='dropdown-item'][4]"));
-        option.click();	    
-}
-	    // 1️⃣ Locate the <select> element 
-
-public void enterInvoiceDetails() throws InterruptedException {
+public void enterInvoiceDetails(int rowIndex) throws InterruptedException {
 	    Random random = new Random();
 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
 
@@ -317,8 +243,8 @@ public void enterInvoiceDetails() throws InterruptedException {
 
 	    WebElement pickedDay = wait.until(ExpectedConditions.elementToBeClickable(
 	            By.xpath("//div[contains(@class,'react-datepicker__day') and text()='" + day + "']")));
-	    pickedDay.click();
-        Thread.sleep(1000);
+	    Thread.sleep(1000);
+	    pickedDay.click();     
 
 	    // ----------------------------
 	    // 3️⃣ INVOICE VALUE – random 4 digits
@@ -370,162 +296,85 @@ public void enterInvoiceDetails() throws InterruptedException {
 
     // 6️⃣ EXPIRY DATE – pick any FUTURE date from current month
 
-//	        WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(5));
-Thread.sleep(2000);
-	        // Open date picker
-	        WebElement expiryIcon = wait.until(
-	            ExpectedConditions.elementToBeClickable(
-	                By.xpath("(//span[contains(@class,'e-date-icon')])[1]")
-	            )
-	        );
-	        expiryIcon.click();
-	        Thread.sleep(500);
+	    WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
+	    Random random2 = new Random();
 
-	        // Today's date
-	        LocalDate today = LocalDate.now();
-	        int todayDay = today.getDayOfMonth();
+	    /* 1️⃣ Open expiry date picker */
+	    WebElement expiryIcon = wait.until(ExpectedConditions.elementToBeClickable(
+	            By.xpath("(//span[contains(@class,'e-date-icon')])[1]")
+	    ));
+	    expiryIcon.click();
 
-	        // Find all date elements
-	        List<WebElement> allDates = driver.findElements(
-	            By.xpath("//span[contains(@class,'e-day')]")
-	        );
+	    /* 2️⃣ Calculate date range */
+	    LocalDate today = LocalDate.now();
+	    LocalDate startDate = today.plusDays(1);   // ⬅ exclude today
+	    LocalDate maxDate = today.plusDays(7);
 
-	        WebElement futureDate = null;
+	    /* 3️⃣ Pick RANDOM future date between today and +7 */
+	    long daysBetween = ChronoUnit.DAYS.between(startDate, maxDate);
+	    LocalDate targetDate = startDate.plusDays(
+	            random.nextInt((int) daysBetween + 1));
 
-	        // Try selecting future day in current month
-	        for (WebElement dateElement : allDates) {
-	            try {
-	                String dayText = dateElement.getText().trim();
-	                int day1 = Integer.parseInt(dayText);
+	    int targetDay = targetDate.getDayOfMonth();
+	    Month targetMonth = targetDate.getMonth();
+	    Month currentMonth = today.getMonth();
 
-	                if (day1 > todayDay) {   // ensures future date
-	                    futureDate = dateElement;
-	                    break;
-	                }
-	            } catch (Exception ignore) {}
-	        }
+	    /* 4️⃣ Move to next month if required */
+	    if (!targetMonth.equals(currentMonth)) {
+	        WebElement nextMonthBtn = wait.until(ExpectedConditions.elementToBeClickable(
+	                By.xpath("//span[contains(@class,'e-next')]")
+	        ));
+	        nextMonthBtn.click();
+	    }
 
-	        if (futureDate != null) {
-	            futureDate.click();  // pick future date in current month
-	        } else {
-	            // No future dates → next month
-	            WebElement nextMonthButton = wait.until(
-	                ExpectedConditions.elementToBeClickable(
-	                    By.xpath("//span[contains(@class,'e-next')]")
-	                )
-	            );
-	            nextMonthButton.click();
-	            Thread.sleep(500);
+	    /* 5️⃣ Click target date */
+	    WebElement targetDateElement = wait.until(ExpectedConditions.elementToBeClickable(
+	            By.xpath("//span[contains(@class,'e-day') and " +
+	                     "not(contains(@class,'e-disabled')) and " +
+	                     "text()='" + targetDay + "']")
+	    ));
+	    targetDateElement.click();
 
-	            WebElement firstDayNextMonth = wait.until(
-	                ExpectedConditions.elementToBeClickable(
-	                    By.xpath("(//span[contains(@class,'e-day')])[1]")
-	                )
-	            );
-	            firstDayNextMonth.click();
-	        }
-	        Thread.sleep(1000);
+	    System.out.println("Expiry date selected: " + targetDate);
+
+
 	        
 	    // 4️⃣ Click Submit	        
-	    WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
+	    WebElement submitBtn = wait2.until(ExpectedConditions.elementToBeClickable(
 	            By.xpath("//button[normalize-space()='SUBMIT']")
 	    ));
 	    submitBtn.click();
 
 	    // 5️⃣ Click Confirm
-	    WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
+	    WebElement confirmBtn = wait2.until(ExpectedConditions.elementToBeClickable(
 	            By.xpath("//button[normalize-space()='Confirm']")
 	    ));
 	    confirmBtn.click();
 	    
 	    //click ok
-	    WebElement ok = wait.until(ExpectedConditions.elementToBeClickable(
+	    WebElement ok = wait2.until(ExpectedConditions.elementToBeClickable(
                 By.xpath("//button[normalize-space()='OK']")
         ));
         ok.click();
 }
 
-  public void VeryfyAndApprove() {
-	  
-	  WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-	WebElement morebutton =	driver.findElement(By.xpath("(//div//button[@class='actions-dropdown dropdown-toggle btn btn-success'])[1]"));
-		morebutton.click();
-		
-		WebElement option = driver.findElement(By.xpath("(//*[@class='dropdown-item'])[6]"));
-      option.click();
-		
-	    WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(2));
-	    
-	 // 4️⃣ Click Submit
-	    WebElement submitBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//button[normalize-space()='SUBMIT']")
-	    ));
-	    submitBtn.click();
+public void veryfyAndApprove(int rowIndex) {
 
-	    // 5️⃣ Click Confirm
-	    WebElement confirmBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	            By.xpath("//button[normalize-space()='Confirm']")
-	    ));
-	    confirmBtn.click();
-	    
-	    //click ok
-	    WebElement ok = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[normalize-space()='OK']")
-        ));
-        ok.click();
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+    WebElement moreBtn = wait.until(ExpectedConditions.elementToBeClickable(
+            By.xpath("//table//tbody//tr[" + rowIndex + "]//button[contains(@class,'dropdown-toggle')]")
+    ));
+    moreBtn.click();
+
+    WebElement approve = wait.until(ExpectedConditions.elementToBeClickable(
+            By.xpath("//table//tbody//tr[" + rowIndex + "]//a[contains(text(),'Verify')]")
+    ));
+    approve.click();
+
+    driver.findElement(By.xpath("//button[normalize-space()='SUBMIT']")).click();
+    driver.findElement(By.xpath("//button[normalize-space()='Confirm']")).click();
+    driver.findElement(By.xpath("//button[normalize-space()='OK']")).click();
 }
-  
-  public void updateOnlyWaitingForAcceptance(int maxLposToProcess) throws InterruptedException {
-
-	    Thread.sleep(1500);
-
-	    List<WebElement> rows = driver.findElements(By.xpath("//table//tbody//tr"));
-
-	    int processedCount = 0;
-
-	    for (int i = 1; i <= rows.size(); i++) {
-
-	        if (processedCount == maxLposToProcess) {
-	            break;
-	        }
-
-	        WebElement statusCell = driver.findElement(
-	                By.xpath("//table//tbody//tr[" + i + "]/td[11]")
-	        );
-	        String status = statusCell.getText().trim();
-
-	        if (!status.equalsIgnoreCase("Waiting For Acceptance")) {
-	            continue;
-	        }
-
-	        WebElement moreButton = driver.findElement(
-	                By.xpath("//table//tbody//tr[" + i + "]/td[last()]//button")
-	        );
-	        moreButton.click();
-	        Thread.sleep(800);
-
-	        driver.findElement(By.xpath("//a[contains(text(),'Change Status')]")).click();
-
-	        Thread.sleep(1200);
-
-	        processLpoWorkflow();  // ⭐ Only ONE call
-
-	        processedCount++;
-	    }
-	}
-
-  public void processLpoWorkflow() throws InterruptedException {
-	  Thread.sleep(1500);
-	    changeNewStatus();
-	    Thread.sleep(1500);
-	    changeLpoAtHub(1);
-	    Thread.sleep(1500);
-	    Lpofulfillment();
-	    Thread.sleep(1500);
-	    enterInvoiceDetails();
-	    Thread.sleep(1500);
-	    VeryfyAndApprove();
-	}
-
 	
 }
