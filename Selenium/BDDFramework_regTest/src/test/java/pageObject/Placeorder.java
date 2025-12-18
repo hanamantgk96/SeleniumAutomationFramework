@@ -281,11 +281,12 @@ public class Placeorder {
 	
 	driver.findElement(By.xpath("//button[text()='Review Order']")).click();
 	driver.findElement(By.xpath("//button[text()='Place Order']")).click();
-
+//	driver.findElement(By.xpath("//button[text()='No']")).click();
+			
+			   System.out.println("Order created successfully");
+			   System.out.println("Status Passed");
+			   
 	   
-	   System.out.println("Order created successfully");
-	   System.out.println("Status Passed");
-		 
 	}
 	
 	public String captureOrderId() {

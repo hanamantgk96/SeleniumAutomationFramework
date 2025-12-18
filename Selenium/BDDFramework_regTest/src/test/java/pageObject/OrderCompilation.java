@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,6 +18,7 @@ public class OrderCompilation {
 		this.driver = driver;
 		
 		}
+	
 	By clickgrid = By.xpath("//div[@class='menu-cont' ] //img[@alt='img']");
 	By clickorderProcessing = By.xpath("//ul//li//span[text()='Order Processing']");
 	By orderCompilation = By.xpath("//ul//li//span[text()='Order Compilation']");
@@ -29,7 +31,8 @@ public class OrderCompilation {
 		driver.findElement(clickorderProcessing).click();
 	}
 
-	public void orderCompilation() {
+	public void orderCompilation() throws InterruptedException {
+		Thread.sleep(2000);
 		driver.findElement(orderCompilation).click();
 	}
 
@@ -50,36 +53,60 @@ public class OrderCompilation {
 	            ExpectedConditions.elementToBeClickable(searchBoxLocator)
 	    );
 	    
-	    Thread.sleep(2000);
+	    Thread.sleep(3000);
 
 	    String orderId = Placeorder.orderId;
 	    System.out.println("Order ID = " + orderId);
 
 	    searchBox.clear();
 	    searchBox.sendKeys(orderId);
+	    Thread.sleep(1000);
 	    searchBox.sendKeys(Keys.ENTER);
+	    
+	    Thread.sleep(3000);
 	    
 	}
 	
 	public void stockReserve() throws InterruptedException {
-		
-		driver.findElement(By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]")).click();
-		
+
 		Thread.sleep(2000);
-		
-		driver.findElement(By.xpath("//a[text()='Reserve Batch']")).click();
-		
-		Thread.sleep(1000);
-		
-		driver.findElement(By.xpath("//button[text()='SUBMIT']")).click();
-		Thread.sleep(2000);
-		
-		driver.findElement(By.xpath("//button[text()='Confirm']")).click();
-		Thread.sleep(2000);
-		
-		driver.findElement(By.xpath("//button[text()='OK']")).click();
-		Thread.sleep(2000);
-		
-	}
+
+		    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
+	
+		            wait.until(ExpectedConditions.presenceOfElementLocated(
+		                    By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
+		            ));
+		            
+		            Thread.sleep(2000);
+
+		            WebElement moreBtn = wait.until(ExpectedConditions.elementToBeClickable(
+		                    By.xpath("(//button[contains(@class,'actions-dropdown')])[2]")
+		            ));
+		            moreBtn.click();
+		            
+		            Thread.sleep(2000);
+
+		            wait.until(ExpectedConditions.elementToBeClickable(
+		                    By.xpath("//a[normalize-space()='Reserve Batch']")
+		            )).click();
+		            
+		            Thread.sleep(2000);
+
+		            wait.until(ExpectedConditions.elementToBeClickable(
+		                    By.xpath("//button[normalize-space()='SUBMIT']")
+		            )).click();
+		            
+		            Thread.sleep(2000);
+
+		            wait.until(ExpectedConditions.elementToBeClickable(
+		                    By.xpath("//button[normalize-space()='Confirm']")
+		            )).click();
+
+		            Thread.sleep(2000);
+		            wait.until(ExpectedConditions.elementToBeClickable(
+		                    By.xpath("//button[normalize-space()='OK']")
+		            )).click();
+		        }
+
 
 	}

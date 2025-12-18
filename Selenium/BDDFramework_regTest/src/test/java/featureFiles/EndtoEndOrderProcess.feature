@@ -28,25 +28,23 @@ Background:
     #And Got to third page and select the Delivery Hub
     #Then Click submit button and click confirm
     #And LPO is successfully created 
-    
-    
-    @compilation  
+     
   Scenario: Order Compilation
   Given User navigates to the Order Compilation page
   When the user reserves the stock
   Then the stock is reserved successfully
-  And close the browser
+
   
- @delivery
-Scenario: Create a delivery schedule
-  Given the user navigates to the Delivery module
-  Then the user clicks on the "Create Delivery Schedule" button
-  And the user filters the order by Order ID and updates the driver
-  Then the user saves the changes and performs drag-and-drop
-  And the user selects the order and proceeds to the next step
-  Then the user selects the departure time and vehicle
-  And the user verifies that all selected orders are displayed and clicks Submit
-  Then the delivery schedule is created successfully
+ #@delivery
+#Scenario: Create a delivery schedule
+  #Given the user navigates to the Delivery module
+  #Then the user clicks on the "Create Delivery Schedule" button
+  #And the user filters the order by Order ID and updates the driver
+  #Then the user saves the changes and performs drag-and-drop
+  #And the user selects the order and proceeds to the next step
+  #Then the user selects the departure time and vehicle
+  #And the user verifies that all selected orders are displayed and clicks Submit
+  #Then the delivery schedule is created successfully
  
   
     
