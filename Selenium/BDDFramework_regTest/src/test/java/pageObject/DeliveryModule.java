@@ -22,7 +22,7 @@ public class DeliveryModule {
 		this.driver = driver;
 
 	}
-	
+
 	By clickgrid = By.xpath("//div[@class='menu-cont' ] //img[@alt='img']");
 	By clickdelivery = By.xpath("//ul//li//span[text()='Delivery']");
 	By placeschedule = By.xpath("//ul//li//span[text()='Schedule']");
@@ -42,98 +42,88 @@ public class DeliveryModule {
 
 	public void clickcreatedeliveryschedule() throws InterruptedException {
 		Thread.sleep(2000);
-	 driver.findElement(By.xpath("//button[text()='Create Delivery Schedule +']")).click();
+		driver.findElement(By.xpath("//button[text()='Create Delivery Schedule +']")).click();
 	}
-	
-//	public void orderChangeDriver() throws InterruptedException {
-//		
-//		Thread.sleep(2000);
-//
-//	    By filterIcon = By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]");
-//	    By searchBoxLocator = By.xpath("//input[@type='text' and @placeholder='Order ID']");
-//
-//	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-//
-//	    wait.until(ExpectedConditions.refreshed(
-//	            ExpectedConditions.elementToBeClickable(filterIcon)
-//	    )).click();
-//
-//	    WebElement searchBox = wait.until(
-//	            ExpectedConditions.elementToBeClickable(searchBoxLocator)
-//	    );
-//	    
-//	    Thread.sleep(2000);
-//
-//	    String orderId = Placeorder.orderId;
-//	    System.out.println("Order ID = " + orderId);
-//
-//	    searchBox.clear();
-//	    searchBox.sendKeys(orderId);
-//	    searchBox.sendKeys(Keys.ENTER);
-//	    
-//	    driver.findElement(By.xpath("//button[text()='Change Drivers']")).click();
-//			
-//			WebElement dropdown = driver.findElement(By.xpath("//select[@class='grid-select alt-down-arrow']"));
-//			dropdown.click();  
-//
-//			Select select = new Select(dropdown);
-//
-//			List<WebElement> options = select.getOptions();
-//
-//			options.remove(0);
-//
-//			WebElement randomOption = options.get(new Random().nextInt(options.size()));
-//
-//			select.selectByVisibleText(randomOption.getText());
-//		
-//		}	
-//	
+
+	public void orderChangeDriver() throws InterruptedException {
+
+		Thread.sleep(10000);
+
+		By filterIcon = By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]");
+		Thread.sleep(1000);
+		By searchBoxLocator = By.xpath("//input[@type='text' and @placeholder='Order ID']");
+
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+		wait.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(filterIcon))).click();
+
+		WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(searchBoxLocator));
+
+		Thread.sleep(2000);
+
+		String orderId = Placeorder.orderId;
+		System.out.println("Order ID = " + orderId);
+
+		searchBox.clear();
+		searchBox.sendKeys(orderId);
+		searchBox.sendKeys(Keys.ENTER);
+
+		driver.findElement(By.xpath("//button[text()='Change Drivers']")).click();
+
+		WebElement dropdown = driver.findElement(By.xpath("//select[@class='grid-select alt-down-arrow']"));
+		dropdown.click();
+
+		Select select = new Select(dropdown);
+
+		List<WebElement> options = select.getOptions();
+
+		options.remove(0);
+
+		WebElement randomOption = options.get(new Random().nextInt(options.size()));
+
+		select.selectByVisibleText(randomOption.getText());
+
+	}
+
 	public void DragAndDrop() throws InterruptedException {
-		
+
 		Thread.sleep(3500);
-	
+
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 
-		WebElement source = wait.until(ExpectedConditions.elementToBeClickable(
-		        By.xpath("//div[normalize-space()='Driver Name']")));
+		WebElement source = wait
+				.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[normalize-space()='Driver Name']")));
 
-		WebElement target = wait.until(ExpectedConditions.visibilityOfElementLocated(
-		        By.xpath("//div[contains(@class,'grid-grouping-bar')]")));
+		WebElement target = wait.until(
+				ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class,'grid-grouping-bar')]")));
 
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		js.executeScript("arguments[0].scrollIntoView(true);", source);
 		js.executeScript("arguments[0].scrollIntoView(true);", target);
 
 		Actions actions = new Actions(driver);
-		actions.clickAndHold(source)
-		       .moveToElement(target)
-		       .release()
-		       .build()
-		       .perform();
+		actions.clickAndHold(source).moveToElement(target).release().build().perform();
 	}
-	
-	
-	
+
 	public void OrderSelection() throws InterruptedException {
-		
+
 		Thread.sleep(1000);
 
-	List<WebElement> driverCheckboxes = driver.findElements(By
-			.xpath("//div[@class='grid-checkbox-div group-by-column-check']"));
-	for (int i = 0; i < driverCheckboxes.size(); i++) {
-		List<WebElement> updatedList = driver.findElements(By.xpath(
-				"//div[@class='grid-checkbox-div group-by-column-check']"));
-		WebElement checkbox = updatedList.get(i);
-		if (!checkbox.isSelected()) {
-			checkbox.click();
-			Thread.sleep(300);
+		List<WebElement> driverCheckboxes = driver
+				.findElements(By.xpath("//div[@class='grid-checkbox-div group-by-column-check']"));
+		for (int i = 0; i < driverCheckboxes.size(); i++) {
+			List<WebElement> updatedList = driver
+					.findElements(By.xpath("//div[@class='grid-checkbox-div group-by-column-check']"));
+			WebElement checkbox = updatedList.get(i);
+			if (!checkbox.isSelected()) {
+				checkbox.click();
+				Thread.sleep(300);
 
+			}
 		}
+		driver.findElement(By.xpath("(//button[@class='button button-primary button-small'])[2]")).click();
 	}
-	driver.findElement(By.xpath("(//button[@class='button button-primary button-small'])[2]")).click();
-}
-	
-	
+
 	public void selectVehicleAndTime() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 		Random random = new Random();
@@ -188,22 +178,21 @@ public class DeliveryModule {
 			} catch (Exception e) {
 				System.out.println("Error in section: " + e.getMessage());
 			}
-	
+
 		}
 	}
-	
+
 	public void Submit() throws InterruptedException {
-		
+
 		WebElement contentContainer = driver.findElement(By.cssSelector("div.content-cont.toggle"));
 		((JavascriptExecutor) driver).executeScript("arguments[0].scrollTop = 0;", contentContainer);
 
 		Thread.sleep(1000);
 
 		driver.findElement(By.xpath("//div[text()='Next ']")).click();
-		
+
 		Thread.sleep(3000);
-		
-		
+
 		driver.findElement(By.xpath("//button[text()='SUBMIT']")).click();
 
 		Thread.sleep(2000);
@@ -216,13 +205,13 @@ public class DeliveryModule {
 
 		Thread.sleep(1000);
 	}
-	
-	
+
 	public void scheduleCreated() throws InterruptedException {
-		
+
 		WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(10));
-		
-		driver.findElement(By.xpath("(//button[@class='actions-dropdown dropdown-toggle btn btn-success'])[1]")).click();
+
+		driver.findElement(By.xpath("(//button[@class='actions-dropdown dropdown-toggle btn btn-success'])[1]"))
+				.click();
 
 		Thread.sleep(2000);
 
@@ -233,22 +222,21 @@ public class DeliveryModule {
 		WebElement scheduleStatus = wait1.until(ExpectedConditions.presenceOfElementLocated(By.name("selectedStatus")));
 		Select dropdown1 = new Select(scheduleStatus);
 		dropdown1.selectByVisibleText("Active");
-		
+
 		Thread.sleep(2000);
 
-		WebElement comments = wait1.until(ExpectedConditions.elementToBeClickable(
-		        By.xpath("//input[@type='text' and @name='comment']")));
+		WebElement comments = wait1
+				.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[@type='text' and @name='comment']")));
 
 		comments.click();
 		comments.sendKeys("Status changed to Active");
 
-
 		driver.findElement(By.xpath("//button[normalize-space()='Submit']")).click();
 
 	}
-	
+
 	public void CompletingSchedule() throws InterruptedException {
-		
+
 //	//	WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
 //		
 //		driver.findElement(By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]")).click();
@@ -266,108 +254,87 @@ public class DeliveryModule {
 //		 	   searchBox.sendKeys(Keys.ENTER);
 //		 	   
 //		 	   Thread.sleep(2000);
-		
+
 		Thread.sleep(2000);
-		
-		driver.findElement(By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]")).click();
-		
+
+		driver.findElement(
+				By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]"))
+				.click();
+
 		Thread.sleep(2000);
-		
+
 		driver.findElement(By.xpath("//a[text()='View Trip']")).click();
-		
+
 		Thread.sleep(2000);
-		
+
 		driver.findElement(By.xpath("//div[@class='dropdown-container']//img")).click();
-		
+
 		Thread.sleep(2000);
-		
+
 		driver.findElement(By.xpath("//li[text()='View Details']")).click();
-		
+
 		Thread.sleep(2000);
 
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
-		int businessCount = driver.findElements(
-		        By.xpath("//div[contains(@class,'accordion-header')]")
-		).size();
+		int businessCount = driver.findElements(By.xpath("//div[contains(@class,'accordion-header')]")).size();
 
 		for (int i = 0; i < businessCount; i++) {
 
-		    List<WebElement> businesses = driver.findElements(
-		            By.xpath("//div[contains(@class,'accordion-header')]")
-		    );
-		    WebElement currentBusiness = businesses.get(i);
-		    wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-		    Thread.sleep(2000);
+			List<WebElement> businesses = driver.findElements(By.xpath("//div[contains(@class,'accordion-header')]"));
+			WebElement currentBusiness = businesses.get(i);
+			wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+			Thread.sleep(2000);
 
-		    while (true) {
+			while (true) {
 
-		        List<WebElement> orders = driver.findElements(
-		                By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
-		        );
+				List<WebElement> orders = driver
+						.findElements(By.xpath("//tbody/tr[not(contains(@style,'display:none'))]"));
 
-		        WebElement pendingOrder = null;
+				WebElement pendingOrder = null;
 
-		        for (WebElement order : orders) {
-		            boolean isCompleted = order.findElements(
-		                    By.xpath(".//div[@title='Completed']")
-		            ).size() > 0;
+				for (WebElement order : orders) {
+					boolean isCompleted = order.findElements(By.xpath(".//div[@title='Completed']")).size() > 0;
 
-		            if (!isCompleted) {
-		                pendingOrder = order;
-		                break;
-		            }
-		        }
+					if (!isCompleted) {
+						pendingOrder = order;
+						break;
+					}
+				}
 
-		        if (pendingOrder == null) {
-		            System.out.println("All orders completed for business " + (i + 1));
-		            wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-		            Thread.sleep(1500);
-		            break;
-		        }
+				if (pendingOrder == null) {
+					System.out.println("All orders completed for business " + (i + 1));
+					wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+					Thread.sleep(1500);
+					break;
+				}
 
-		        WebElement moreBtn = pendingOrder.findElement(
-		                By.xpath(".//button[contains(@class,'actions-dropdown')]")
-		        );
-		        wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
+				WebElement moreBtn = pendingOrder
+						.findElement(By.xpath(".//button[contains(@class,'actions-dropdown')]"));
+				wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
 
-		        wait.until(ExpectedConditions.elementToBeClickable(
-		                By.xpath("//a[normalize-space()='Change Status']")
-		        )).click();
+				wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[normalize-space()='Change Status']")))
+						.click();
 
-		        WebElement statusDropdown = wait.until(
-		                ExpectedConditions.presenceOfElementLocated(By.name("selectedStatus"))
-		        );
-		        new Select(statusDropdown).selectByVisibleText("Completed");
+				WebElement statusDropdown = wait
+						.until(ExpectedConditions.presenceOfElementLocated(By.name("selectedStatus")));
+				new Select(statusDropdown).selectByVisibleText("Completed");
 
-		        WebElement comment = wait.until(
-		                ExpectedConditions.elementToBeClickable(By.name("comment"))
-		        );
-		        comment.clear();
-		        comment.sendKeys("Schedule Completed Successfully");
+				WebElement comment = wait.until(ExpectedConditions.elementToBeClickable(By.name("comment")));
+				comment.clear();
+				comment.sendKeys("Schedule Completed Successfully");
 
-		        wait.until(ExpectedConditions.elementToBeClickable(
-		                By.xpath("//button[normalize-space()='Submit']")
-		        )).click();
+				wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='Submit']")))
+						.click();
 
-		        Thread.sleep(2000);
+				Thread.sleep(2000);
 
-		        businesses = driver.findElements(
-		                By.xpath("//div[contains(@class,'accordion-header')]")
-		        );
-		        currentBusiness = businesses.get(i);
-		        wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-		        Thread.sleep(1500);
-		    }
+				businesses = driver.findElements(By.xpath("//div[contains(@class,'accordion-header')]"));
+				currentBusiness = businesses.get(i);
+				wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+				Thread.sleep(1500);
+			}
 		}
 
-
+	}
 }
-}
-	
-
-
-		
-	
-	
-

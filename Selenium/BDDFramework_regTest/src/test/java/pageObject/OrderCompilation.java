@@ -26,17 +26,20 @@ public class OrderCompilation {
 		driver.findElement(clickgrid).click();
 	}
 
-	public void clickorderProcessing() {
+	public void clickorderProcessing() throws InterruptedException {
 		driver.findElement(clickorderProcessing).click();
+		Thread.sleep(2000);
 	}
 
 	public void orderCompilation() throws InterruptedException {
-		Thread.sleep(2000);
+		Thread.sleep(3000);
 		driver.findElement(orderCompilation).click();
 	}
 
 	public void stockReserving() throws InterruptedException {
-		
+
+		driver.navigate().refresh();
+
 		Thread.sleep(2000);
 
 	    By filterIcon = By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]");
@@ -44,15 +47,11 @@ public class OrderCompilation {
 
 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-	    wait.until(ExpectedConditions.refreshed(
-	            ExpectedConditions.elementToBeClickable(filterIcon)
-	    )).click();
+		wait.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(filterIcon))).click();
 
-	    WebElement searchBox = wait.until(
-	            ExpectedConditions.elementToBeClickable(searchBoxLocator)
-	    );
-	    
-	    Thread.sleep(3000);
+		WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(searchBoxLocator));
+
+		Thread.sleep(3000);
 
 	    String orderId = Placeorder.orderId;
 	    System.out.println("Order ID = " + orderId);
@@ -70,42 +69,32 @@ public class OrderCompilation {
 
 		Thread.sleep(2000);
 
-		    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
-	
-		            wait.until(ExpectedConditions.presenceOfElementLocated(
-		                    By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
-		            ));
-		            
-		            Thread.sleep(2000);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
 
-		            WebElement moreBtn = wait.until(ExpectedConditions.elementToBeClickable(
-		                    By.xpath("(//button[contains(@class,'actions-dropdown')])[2]")
-		            ));
-		            moreBtn.click();
-		            
-		            Thread.sleep(2000);
+		wait.until(ExpectedConditions
+				.presenceOfElementLocated(By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")));
 
-		            wait.until(ExpectedConditions.elementToBeClickable(
-		                    By.xpath("//a[normalize-space()='Reserve Batch']")
-		            )).click();
-		            
-		            Thread.sleep(2000);
+		Thread.sleep(2000);
 
-		            wait.until(ExpectedConditions.elementToBeClickable(
-		                    By.xpath("//button[normalize-space()='SUBMIT']")
-		            )).click();
-		            
-		            Thread.sleep(2000);
+		WebElement moreBtn = wait.until(ExpectedConditions
+				.elementToBeClickable(By.xpath("(//button[contains(@class,'actions-dropdown')])[2]")));
+		moreBtn.click();
 
-		            wait.until(ExpectedConditions.elementToBeClickable(
-		                    By.xpath("//button[normalize-space()='Confirm']")
-		            )).click();
+		Thread.sleep(2000);
 
-		            Thread.sleep(2000);
-		            wait.until(ExpectedConditions.elementToBeClickable(
-		                    By.xpath("//button[normalize-space()='OK']")
-		            )).click();
-		        }
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[normalize-space()='Reserve Batch']"))).click();
+
+		Thread.sleep(2000);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='SUBMIT']"))).click();
+
+		Thread.sleep(2000);
+
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='Confirm']"))).click();
+
+		Thread.sleep(2000);
+		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='OK']"))).click();
+	}
 
 
 	}

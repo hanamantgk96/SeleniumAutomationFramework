@@ -63,9 +63,8 @@ public class Placeorder {
 
 	public void selectProduct_And_Quantity() throws Exception {
 
-	    List<WebElement> products = driver.findElements(By.xpath(
-	        "//input[contains(@class,'grid-checkbox-input') and @type='checkbox' and not(@disabled)]"
-	    ));
+		List<WebElement> products = driver.findElements(
+				By.xpath("//input[contains(@class,'grid-checkbox-input') and @type='checkbox' and not(@disabled)]"));
 
 	    int numberOfProductsToSelect = 4;
 	    Set<Integer> randomIndexes = new HashSet<>();
@@ -106,15 +105,30 @@ public class Placeorder {
 	        WebElement row = checkbox.findElement(By.xpath("./ancestor::tr"));
 	        WebElement qtyInput = row.findElement(By.xpath(".//td[9]//input"));
 
-	        // Generate random quantity between 1 and 10
-	        double q = rand.nextInt(10) + 1;
-	        String qty = String.format("%.2f", q);
+//	        double q = rand.nextInt(10) + 1;
+//	        String qty = String.format("%.2f", q);
+//
+//	        updateQty(driver, qtyInput, qty);
+//
+//	        System.out.println("Row " + index + " → Qty updated to " + qty);
 
-	        // Update quantity reliably
-	        updateQty(driver, qtyInput, qty);
+			Random rand1 = new Random();
 
-	        System.out.println("Row " + index + " → Qty updated to " + qty);
-	    }
+			String qty;
+
+			if (rand1.nextBoolean()) {
+				int whole = rand1.nextInt(10) + 1;
+				qty = String.valueOf(whole);
+			} else {
+
+				int whole = rand1.nextInt(10) + 1;
+				int decimal = rand1.nextInt(100);
+				qty = String.format("%d.%02d", whole, decimal);
+			}
+
+			updateQty(driver, qtyInput, qty);
+			System.out.println("Row " + index + " → Qty updated to " + qty);
+		}
 	}
 
 	public void updateQty(WebDriver driver, WebElement qtyInput, String qty) throws InterruptedException {
