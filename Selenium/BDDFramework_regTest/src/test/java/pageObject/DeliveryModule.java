@@ -45,7 +45,7 @@ public class DeliveryModule {
 		driver.findElement(By.xpath("//button[text()='Create Delivery Schedule +']")).click();
 	}
 
-	public void orderChangeDriver() throws InterruptedException {
+	public void OrderFilteration() throws InterruptedException {
 
 		Thread.sleep(10000);
 
@@ -68,28 +68,28 @@ public class DeliveryModule {
 		searchBox.sendKeys(orderId);
 		searchBox.sendKeys(Keys.ENTER);
 
-		driver.findElement(By.xpath("//button[text()='Change Drivers']")).click();
-
-		WebElement dropdown = driver.findElement(By.xpath("//select[@class='grid-select alt-down-arrow']"));
-		dropdown.click();
-
-		Select select = new Select(dropdown);
-
-		List<WebElement> options = select.getOptions();
-
-		options.remove(0);
-
-		WebElement randomOption = options.get(new Random().nextInt(options.size()));
-
-		select.selectByVisibleText(randomOption.getText());
+//		driver.findElement(By.xpath("//button[text()='Change Drivers']")).click();
+//
+//		WebElement dropdown = driver.findElement(By.xpath("//select[@class='grid-select alt-down-arrow']"));
+//		dropdown.click();
+//
+//		Select select = new Select(dropdown);
+//
+//		List<WebElement> options = select.getOptions();
+//
+//		options.remove(0);
+//
+//		WebElement randomOption = options.get(new Random().nextInt(options.size()));
+//
+//		select.selectByVisibleText(randomOption.getText());
 
 	}
 
 	public void DragAndDrop() throws InterruptedException {
 
-		Thread.sleep(3500);
+		Thread.sleep(5000);
 
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
 		WebElement source = wait
 				.until(ExpectedConditions.elementToBeClickable(By.xpath("//div[normalize-space()='Driver Name']")));
@@ -161,7 +161,7 @@ public class DeliveryModule {
 					vehicleSelect.selectByIndex(index);
 				}
 
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 
 				if (isUnassigned) {
 					WebElement driverDropdownElem = section.findElement(By.xpath(".//select[@name='userName']"));
@@ -237,104 +237,104 @@ public class DeliveryModule {
 
 	public void CompletingSchedule() throws InterruptedException {
 
-//	//	WebDriverWait wait2 = new WebDriverWait(driver, Duration.ofSeconds(10));
-//		
-//		driver.findElement(By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]")).click();
-//		
-//		 By searchBoxLocator = By.xpath("//input[@type='text' and @placeholder='Scheduled ID']");
-//		 
-//		 	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-//		 
-//		 	    WebElement searchBox = wait.until(
-//		 	            ExpectedConditions.elementToBeClickable(searchBoxLocator)
-//		 	    );
-//		 	    
-//		 	    Thread.sleep(2000);
-//		 	    searchBox.sendKeys("160809");
-//		 	   searchBox.sendKeys(Keys.ENTER);
-//		 	   
-//		 	   Thread.sleep(2000);
-
-		Thread.sleep(2000);
-
-		driver.findElement(
-				By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]"))
-				.click();
-
-		Thread.sleep(2000);
-
-		driver.findElement(By.xpath("//a[text()='View Trip']")).click();
-
-		Thread.sleep(2000);
-
-		driver.findElement(By.xpath("//div[@class='dropdown-container']//img")).click();
-
-		Thread.sleep(2000);
-
-		driver.findElement(By.xpath("//li[text()='View Details']")).click();
-
-		Thread.sleep(2000);
-
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
-		int businessCount = driver.findElements(By.xpath("//div[contains(@class,'accordion-header')]")).size();
+		int businessCount = driver.findElements(
+		        By.xpath("//div[contains(@class,'accordion-header')]")
+		).size();
 
 		for (int i = 0; i < businessCount; i++) {
 
-			List<WebElement> businesses = driver.findElements(By.xpath("//div[contains(@class,'accordion-header')]"));
-			WebElement currentBusiness = businesses.get(i);
-			wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-			Thread.sleep(2000);
+		    // 🔁 ALWAYS re-locate business headers
+		    List<WebElement> businesses = wait.until(
+		            ExpectedConditions.presenceOfAllElementsLocatedBy(
+		                    By.xpath("//div[contains(@class,'accordion-header')]")
+		            )
+		    );
 
-			while (true) {
+		    WebElement currentBusiness = businesses.get(i);
+		    wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+		    Thread.sleep(1500);
 
-				List<WebElement> orders = driver
-						.findElements(By.xpath("//tbody/tr[not(contains(@style,'display:none'))]"));
+		    while (true) {
 
-				WebElement pendingOrder = null;
+		        // 🔁 Re-locate visible orders every iteration
+		        List<WebElement> orders = wait.until(
+		                ExpectedConditions.presenceOfAllElementsLocatedBy(
+		                        By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
+		                )
+		        );
 
-				for (WebElement order : orders) {
-					boolean isCompleted = order.findElements(By.xpath(".//div[@title='Completed']")).size() > 0;
+		        WebElement pendingOrder = null;
 
-					if (!isCompleted) {
-						pendingOrder = order;
-						break;
-					}
-				}
+		        for (WebElement order : orders) {
+		            boolean isCompleted = order
+		                    .findElements(By.xpath(".//div[@title='Completed']")).size() > 0;
 
-				if (pendingOrder == null) {
-					System.out.println("All orders completed for business " + (i + 1));
-					wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-					Thread.sleep(1500);
-					break;
-				}
+		            if (!isCompleted) {
+		                pendingOrder = order;
+		                break;
+		            }
+		        }
 
-				WebElement moreBtn = pendingOrder
-						.findElement(By.xpath(".//button[contains(@class,'actions-dropdown')]"));
-				wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
+		        if (pendingOrder == null) {
+		            System.out.println("All orders completed for business " + (i + 1));
 
-				wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[normalize-space()='Change Status']")))
-						.click();
+		            // Collapse accordion safely
+		            businesses = driver.findElements(
+		                    By.xpath("//div[contains(@class,'accordion-header')]")
+		            );
+		            wait.until(ExpectedConditions.elementToBeClickable(businesses.get(i))).click();
+		            Thread.sleep(1000);
+		            break;
+		        }
 
-				WebElement statusDropdown = wait
-						.until(ExpectedConditions.presenceOfElementLocated(By.name("selectedStatus")));
-				new Select(statusDropdown).selectByVisibleText("Completed");
+		        // 🔁 Re-locate More button from fresh DOM
+		        WebElement moreBtn = pendingOrder.findElement(
+		                By.xpath(".//button[contains(@class,'actions-dropdown')]")
+		        );
+		        wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
 
-				WebElement comment = wait.until(ExpectedConditions.elementToBeClickable(By.name("comment")));
-				comment.clear();
-				comment.sendKeys("Schedule Completed Successfully");
+		        wait.until(ExpectedConditions.elementToBeClickable(
+		                By.xpath("//a[normalize-space()='Change Status']")
+		        )).click();
 
-				wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='Submit']")))
-						.click();
+		        WebElement statusDropdown = wait.until(
+		                ExpectedConditions.elementToBeClickable(By.name("selectedStatus"))
+		        );
+		        new Select(statusDropdown).selectByVisibleText("Completed");
 
-				Thread.sleep(2000);
+		        WebElement comment = wait.until(
+		                ExpectedConditions.elementToBeClickable(By.name("comment"))
+		        );
+		        comment.clear();
+		        comment.sendKeys("Schedule Completed Successfully");
 
-				businesses = driver.findElements(By.xpath("//div[contains(@class,'accordion-header')]"));
-				currentBusiness = businesses.get(i);
-				wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-				Thread.sleep(1500);
-			}
+		        wait.until(ExpectedConditions.elementToBeClickable(
+		                By.xpath("//button[normalize-space()='Submit']")
+		        )).click();
+
+		        // 🔁 Wait for UI refresh after submit
+		        Thread.sleep(2000);
+
+		        // 🔁 Re-open accordion again
+		        businesses = driver.findElements(
+		                By.xpath("//div[contains(@class,'accordion-header')]")
+		        );
+		        wait.until(ExpectedConditions.elementToBeClickable(businesses.get(i))).click();
+		        Thread.sleep(1500);
+		    }
 		}
 
+		WebElement backArrow = wait.until(
+		        ExpectedConditions.elementToBeClickable(
+		                By.cssSelector("[data-testid='ArrowBackIcon']")
+		        )
+		);
+		backArrow.click();
+
+			}
+		
+
 	}
-}
+

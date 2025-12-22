@@ -1,8 +1,7 @@
 
-
 @Regression
 
-Feature: End to End order module
+Feature: End to End order Process
 
 Background:
     Given User Launch the browser
@@ -12,7 +11,6 @@ Background:
     Then Page Title should be "FRESHONTABLE"
     And Log in is successfull
     
-
  Scenario: Order Creation
     Given User navigates to the Place Order page
     And User selects a business from the list
@@ -39,6 +37,7 @@ Background:
     And User fills all mandatory fields to "Fulfill LPO"
     And User verifies and approves the LPO
     Then LPO is completed successfully 
+    
      
   Scenario: Order Compilation
   Given User navigates to the Order Compilation page
@@ -49,19 +48,23 @@ Background:
   Then the stock is reserved successfully
 
   
- #@delivery
-#Scenario: Delivery Schedule
-  #Given the user navigates to the Delivery module
-  #Then the user clicks on the "Create Delivery Schedule" button
-  #And the user filters the order by Order ID and updates the driver
-  #Then the user saves the changes and performs drag-and-drop
-  #And the user selects the order and proceeds to the next step
-  #Then the user selects the departure time and vehicle
-  #And the user verifies that all selected orders are displayed and clicks Submit
-  #Then the delivery schedule is created successfully
+ Scenario: Delivery Schedule
+  Given the user navigates to the Delivery module
+  Then the user clicks on the "Create Delivery Schedule" button
+  And the user filters the order by Order ID and updates the driver
+  Then the user saves the changes and performs drag-and-drop
+  And the user selects the order and proceeds to the next step
+  Then the user selects the departure time and vehicle
+  And the user verifies that all selected orders are displayed and clicks Submit
+  Then the delivery schedule is created successfully
  
   
-  #  Scenario: Delivery Schedule
-  #  Scenario: Order Invoicing
+  Scenario: Generate Invoice
+  Given User navigates to the View Order page
+  And User searches for the Order ID
+  When User clicks the More button and selects Edit Order Details
+  And User verifies the order details and clicks the "Generate Invoice" button
+  Then User gets a confirmation popup and clicks OK
+  And Order is invoiced successfully
     
     

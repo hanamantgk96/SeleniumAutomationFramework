@@ -55,10 +55,9 @@ public class Placeorder {
 	}
 	
 	public void selectBusiness() {
-		driver.findElement(By.xpath("//div[2]/div/div[2]/div[2]/table/tbody/tr[6]")).click();
+		driver.findElement(By.xpath("//div[2]/div/div[2]/div[2]/table/tbody/tr[5]")).click();
 		
 	}
-
 
 
 	public void selectProduct_And_Quantity() throws Exception {
@@ -291,10 +290,11 @@ public class Placeorder {
 
 	}
 		
-	public void placeOrder() {
+	public void placeOrder() throws InterruptedException {
 	
 	driver.findElement(By.xpath("//button[text()='Review Order']")).click();
 	driver.findElement(By.xpath("//button[text()='Place Order']")).click();
+	Thread.sleep(2000);
 
 	   
 	   System.out.println("Order created successfully");

@@ -1,6 +1,5 @@
 package stepDefinitions;
 
-
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import pageObject.Lpopage;
@@ -9,11 +8,11 @@ import utilities.BaseClass;
 public class Lposteps {
 
 	public BaseClass setupclass;
-	
+
 	public Lposteps(BaseClass setupclass) {
 		this.setupclass = setupclass;
 	}
-	
+
 	@Given("User navigates to the Create LPO page")
 	public void user_navigate_to_the_create_lpo_page() throws InterruptedException {
 		Lpopage Lpo = setupclass.pageObjectManager.getLpopage();
@@ -69,37 +68,36 @@ public class Lposteps {
 		Thread.sleep(2000);
 //		Lpo.CreateLpoValidation();
 		Thread.sleep(2000);
-	}	
-	
+	}
+
 	@Then("User changes any {int} LPOs to the {string} status")
 	public void User_changes_any_lp_os_to_the_status(int count, String string) throws InterruptedException {
-	    Lpopage lpo = setupclass.pageObjectManager.getLpopage();
-	    lpo.processTopWaitingForAcceptanceLpos(count);
+		Lpopage lpo = setupclass.pageObjectManager.getLpopage();
+		lpo.processTopWaitingForAcceptanceLpos(count);
 	}
-	
+
 	@Then("LPO fulfillment Process")
 	public void the_user_performs_lpo_fulfillment() {
-	    
+
 	}
 
 	@Then("User changes the LPO status to {string}")
 	public void the_user_changes_the_lpo_status_to(String string) {
-	    
+
 	}
 
 	@Then("User fills all mandatory fields to {string}")
 	public void User_fills_all_mandatory_fields_to_Fulfill_LPO(String string) {
-	    
+
 	}
 
 	@Then("User verifies and approves the LPO")
 	public void the_user_verifies_and_approves_the_lpo() {
-	    
+
 	}
 
 	@Then("LPO is completed successfully")
 	public void the_lpo_is_completed_successfully() {
-	    
-	}
-	}
 
+	}
+}

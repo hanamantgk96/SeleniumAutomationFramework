@@ -54,6 +54,53 @@ public BaseClass setupclass;
 		Thread.sleep(2000);
 		Order.stockReserve();
 	}
+	
 
+	//Invoice generation steps
+	
+@Given("User navigates to the View Order page")
+public void User_navigates_to_the_view_order_page() throws InterruptedException {
+	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+	Thread.sleep(2000);
+	Order.clickgrid();
+	Thread.sleep(1000);
+	Order.clickOrderOption();
+	Thread.sleep(2000);
+	Order.clickViewOrder();
+	
+}
 
+@And("User searches for the Order ID")
+public void user_search_the_order_Id() throws InterruptedException {
+	 OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+	 Thread.sleep(2000);
+	 Order.stockReserving();
+}
+@Then("User clicks the More button and selects Edit Order Details")
+public void user_clicks_more_button_and_selects_the_edit_order_details() throws InterruptedException {
+	 OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+	 Thread.sleep(2000);
+	 Order.clickMoreButton();
+	 Thread.sleep(1000);
+	 Order.clickShowAllOptions();
+	 Thread.sleep(1000);
+	 Order.clickEditOrderDetails1();
+}
+@Then("User verifies the order details and clicks the {string} button")
+public void user_verifies_the_order_details_and_clicks_the(String string) throws InterruptedException {
+	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+	Thread.sleep(2000);
+	    Order.clickGenerateInvoiceButton();
+}
+@Then("User gets a confirmation popup and clicks OK")
+public void user_gets_a_confirmation_popup_and_clicks_ok() throws InterruptedException {
+	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+	Thread.sleep(2000);
+	Order.invoiceConfirmation();
+   
+}
+@Then("Order is invoiced successfully")
+public void the_order_is_invoiced_successfully() throws InterruptedException {
+
+}
 }

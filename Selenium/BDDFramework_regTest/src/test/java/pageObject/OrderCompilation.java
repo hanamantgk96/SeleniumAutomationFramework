@@ -69,7 +69,7 @@ public class OrderCompilation {
 
 		Thread.sleep(2000);
 
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
 		wait.until(ExpectedConditions
 				.presenceOfElementLocated(By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")));
@@ -94,7 +94,53 @@ public class OrderCompilation {
 
 		Thread.sleep(2000);
 		wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[normalize-space()='OK']"))).click();
+		
+		WebElement backArrow = driver.findElement(
+			    By.cssSelector("[data-testid='ArrowBackIcon']")
+			);
+			backArrow.click();
 	}
 
+//invoice generation 
+
+	public void clickOrderOption() {
+		driver.findElement(By.xpath("//span[text()='Order']")).click();
 
 	}
+
+	public void clickViewOrder() {
+		driver.findElement(By.xpath("//span[text()='View Orders']")).click();
+	}
+
+	public void clickMoreButton() throws InterruptedException {
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//button[text()='More']")).click();
+	}
+	
+	public void clickShowAllOptions() throws InterruptedException {
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//div[text()='Show all options']")).click();
+	}
+
+	public void clickEditOrderDetails1() throws InterruptedException {
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("(//div//a[@class='dropdown-item'])[2]")).click();
+	}
+
+	public void clickGenerateInvoiceButton() throws InterruptedException {
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("(//button[text()='Generate Invoice'])")).click();
+	}
+	
+	public void invoiceConfirmation() throws InterruptedException {
+		Thread.sleep(2000);
+      driver.findElement(By.xpath("//button[normalize-space()='OK']")).click();
+//		driver.findElement(By.xpath("//button[text()='OK']")).click();
+//		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+//			WebElement okBtn = wait.until(ExpectedConditions.elementToBeClickable(
+//					By.xpath("//div[@id='react-confirm-alert']//button[normalize-space()='OK']")));
+//			okBtn.click();
+//			System.out.println("OK popup clicked successfully");
+//		
+	}
+}

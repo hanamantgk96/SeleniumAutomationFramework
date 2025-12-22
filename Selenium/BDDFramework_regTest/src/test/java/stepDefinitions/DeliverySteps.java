@@ -35,7 +35,7 @@ public BaseClass setupclass;
 	public void the_user_filters_the_order_by_order_id_and_updates_the_driver() throws InterruptedException {
 		DeliveryModule Order = setupclass.pageObjectManager.getdeliveryModule();
 		Thread.sleep(2000);
-		Order.orderChangeDriver();
+		Order.OrderFilteration();
 	}
 
 	@Then("the user saves the changes and performs drag-and-drop")

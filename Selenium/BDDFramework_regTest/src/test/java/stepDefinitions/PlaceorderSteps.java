@@ -70,9 +70,10 @@ public BaseClass setupclass;
 	}
 
 	@Then("The order is created successfully")
-	public void the_order_is_created_successfully() {
+	public void the_order_is_created_successfully() throws InterruptedException {
 		Placeorder Order = setupclass.pageObjectManager.getplaceorder();
 		Order.placeOrder();
+		Thread.sleep(2000);
 		 Placeorder.orderId = Order.captureOrderId(); 
 		
 	}
