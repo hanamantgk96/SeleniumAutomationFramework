@@ -1,6 +1,8 @@
 package pageObject;
 
 import java.time.Duration;
+import java.util.NoSuchElementException;
+import java.util.concurrent.TimeoutException;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -133,14 +135,123 @@ public class OrderCompilation {
 	}
 	
 	public void invoiceConfirmation() throws InterruptedException {
-		Thread.sleep(2000);
+		Thread.sleep(3000);
       driver.findElement(By.xpath("//button[normalize-space()='OK']")).click();
-//		driver.findElement(By.xpath("//button[text()='OK']")).click();
-//		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-//			WebElement okBtn = wait.until(ExpectedConditions.elementToBeClickable(
-//					By.xpath("//div[@id='react-confirm-alert']//button[normalize-space()='OK']")));
-//			okBtn.click();
-//			System.out.println("OK popup clicked successfully");
-//		
+		Thread.sleep(2000);
 	}
-}
+	
+	//order completion
+	
+	public String getOrderStatus(String orderId) {
+	    By statusLocator = By.xpath(
+	        "//tr[td[normalize-space()='" + orderId + "']]/td[last()-1]//span"
+	    );
+	    return driver.findElement(statusLocator).getText().trim();
+	}
+	
+	public void waitUntilStatusAppears(String expectedStatus) {
+
+	    By firstRowStatus = By.xpath(
+	        "(//table//tr[1]/td[last()-1]//span)[1]"
+	    );
+
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofMinutes(3));
+	    wait.until(driver -> {
+	        String status = driver.findElement(firstRowStatus).getText().trim();
+	        System.out.println("Current status: " + status);
+	        return status.equalsIgnoreCase(expectedStatus);
+	    });
+	}
+	public void clickMoreOnFirstRow() {
+
+	    By moreBtn = By.xpath(
+	        "(//table//tr[1]//button[normalize-space()='More'])[1]"
+	    );
+
+	    new WebDriverWait(driver, Duration.ofSeconds(10))
+	            .until(ExpectedConditions.elementToBeClickable(moreBtn))
+	            .click();
+	}
+
+	
+	
+/*	public void waitUntilAwaitingPaymentAndClickMore() throws InterruptedException, TimeoutException {
+
+	    By firstRowStatus = By.xpath(
+	        "(//table//tr[1]//span)[1]"
+	    );
+
+	    By firstRowMoreBtn = By.xpath(
+	        "(//table//tr[1]//button[contains(@class,'actions-dropdown')])[1]"
+	    );
+
+	    long timeoutMillis = Duration.ofMinutes(2).toMillis();
+	    long startTime = System.currentTimeMillis();
+
+	    while (System.currentTimeMillis() - startTime < timeoutMillis) {
+
+	        String status = driver.findElement(firstRowStatus).getText().trim();
+	        System.out.println("Current status: " + status);
+
+	        if ("Awaiting Payment".equalsIgnoreCase(status)) {
+	            new WebDriverWait(driver, Duration.ofSeconds(10))
+	                    .until(ExpectedConditions.elementToBeClickable(firstRowMoreBtn))
+	                    .click();
+	            return; // ✅ EXIT IMMEDIATELY
+	        }
+
+	        driver.navigate().refresh();
+	        Thread.sleep(15000);
+	    }
+
+	    throw new TimeoutException("Status did not change to Awaiting Payment");
+	}*/
+
+/*	public void clickPaymentAgainstInvoice() {
+
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+	    By paymentOption = By.xpath(
+	        "//a[normalize-space()='Payment Against Invoice']"
+	    );
+
+	    wait.until(ExpectedConditions.elementToBeClickable(paymentOption)).click();
+	}*/
+
+
+	/*public void completeOrder(String orderId) {
+
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+	    // Click More for specific order
+//	    By moreBtn = By.xpath(
+//	        "//tr[td[normalize-space()='" + orderId + "']]//button[normalize-space()='More']"
+//	    );
+//	    wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
+
+	    // Show all options (optional)
+	    By showAll = By.xpath("//div[normalize-space()='Show all options']");
+	    if (!driver.findElements(showAll).isEmpty()) {
+	        wait.until(ExpectedConditions.elementToBeClickable(showAll)).click();
+	    }
+
+	    // Payment Against Invoice (MENU ITEM — not table row)
+	    By paymentOption = By.xpath("//a[normalize-space()='Payment Against Invoice']");
+	    wait.until(ExpectedConditions.elementToBeClickable(paymentOption)).click();
+
+	    // Submit
+	    By submitBtn = By.xpath("//button[normalize-space()='Submit']");
+	    wait.until(ExpectedConditions.elementToBeClickable(submitBtn)).click();
+	}*/
+
+	
+//	public void verifyCompleted(String orderId) {
+//	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+//	    wait.until(driver ->
+//	        getOrderStatus(orderId).equalsIgnoreCase("Completed")
+//	    );
+//	}
+
+	}
+
+

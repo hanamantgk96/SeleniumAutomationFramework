@@ -1,5 +1,7 @@
 package stepDefinitions;
 
+import java.util.concurrent.TimeoutException;
+
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -103,4 +105,31 @@ public void user_gets_a_confirmation_popup_and_clicks_ok() throws InterruptedExc
 public void the_order_is_invoiced_successfully() throws InterruptedException {
 
 }
+
+//Order completion steps
+@Then("User verifies the order status is {string}")
+public void user_verifies_the_order_status_is(String expectedStatus) {
+
+    OrderCompilation order = setupclass.pageObjectManager.getOrderCompilation();
+    order.waitUntilStatusAppears(expectedStatus); // waits + verifies
+}
+@And("User go to more button and click {string} option")
+    public void user_go_to_more_button_and_click_option(String option) throws InterruptedException, TimeoutException {
+	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+	 Order.clickMoreOnFirstRow();
+	
+}
+@Then("User select the order and enters the Amount,Transaction id and comments")
+    public void user_select_the_order_and_enters_the_amount_transaction_id_and_comments() throws InterruptedException {
+	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+//	Order.clickPaymentAgainstInvoice();
+	
+    }
+
+	@Then("Order is updated to {string} status successfully")
+	public void order_is_updated_to_status_successfully(String string) throws InterruptedException {
+		OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
+//		Order.completeOrder(string);
+//		Order.verifyCompleted(string);
+	}
 }

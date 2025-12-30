@@ -14,8 +14,7 @@ import io.cucumber.junit.CucumberOptions;
 		monochrome = true,
 		plugin = { "pretty",
 				   "summary", 
-				   "html:target/cucumber-reports.html",
-				   "json:target/cucumber.json" })
+				   "html:target/cucumber-reports.html"})
 		
 
 public class TestRunner {

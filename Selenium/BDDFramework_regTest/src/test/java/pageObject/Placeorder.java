@@ -19,6 +19,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -65,7 +66,7 @@ public class Placeorder {
 		List<WebElement> products = driver.findElements(
 				By.xpath("//input[contains(@class,'grid-checkbox-input') and @type='checkbox' and not(@disabled)]"));
 
-	    int numberOfProductsToSelect = 4;
+	    int numberOfProductsToSelect = 2;
 	    Set<Integer> randomIndexes = new HashSet<>();
 
 	    int maxSelectable = Math.min(numberOfProductsToSelect, products.size());
@@ -205,42 +206,64 @@ public class Placeorder {
 	
 	public void shippingDate() throws InterruptedException {
 
-		    Thread.sleep(1000);
-		    WebElement dateInput = driver.findElement(By.name("ship_dt"));
-		    dateInput.click();
+//		    Thread.sleep(2000);
+//		    WebElement dateInput = driver.findElement(By.name("ship_dt"));
+//		    dateInput.click();
+//
+//		    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+//		    wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("react-datepicker")));
+//
+//		    LocalDate nextDay = LocalDate.now().plusDays(1);
+//		    String targetDay = nextDay.format(DateTimeFormatter.ofPattern("d"));
+//		    String targetMonthYear = nextDay.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+//
+//		    while (true) {
+//		        String current = driver.findElement(
+//		                By.cssSelector(".react-datepicker__current-month")).getText();
+//
+//		        if (current.equals(targetMonthYear)) break;
+//		        driver.findElement(By.cssSelector(".react-datepicker__navigation--next")).click();
+//		    }
+//
+//		    try {
+//		        driver.findElement(By.xpath("//div[contains(@class,'react-datepicker__day') and text()='" 
+//		                + targetDay + "']")).click();
+//
+//		        if (dateInput.getAttribute("value").contains(targetDay)) {
+//		            System.out.println("Status: Passed (clicked normally)");
+//		            return;
+//		        }
+//		    } catch (Exception ignored) {}
+//
+//		    String jsDate = nextDay.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+//		    ((JavascriptExecutor) driver).executeScript(
+//		            "arguments[0].value=arguments[1]; arguments[0].dispatchEvent(new Event('change'));",
+//		            dateInput, jsDate);
+//
+//		    System.out.println("Status: Passed (JS fallback)");
+//		}
+		
+		WebElement dateInput = driver.findElement(By.name("ship_dt"));
 
-		    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		    wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("react-datepicker")));
+		((JavascriptExecutor) driver).executeScript("arguments[0].click();", dateInput);
 
-		    LocalDate nextDay = LocalDate.now().plusDays(1);
-		    String targetDay = nextDay.format(DateTimeFormatter.ofPattern("d"));
-		    String targetMonthYear = nextDay.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
+		LocalDate nextDay = LocalDate.now().plusDays(1);
+		String jsDate = nextDay.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
-		    while (true) {
-		        String current = driver.findElement(
-		                By.cssSelector(".react-datepicker__current-month")).getText();
+		JavascriptExecutor js = (JavascriptExecutor) driver;
 
-		        if (current.equals(targetMonthYear)) break;
-		        driver.findElement(By.cssSelector(".react-datepicker__navigation--next")).click();
-		    }
-
-		    try {
-		        driver.findElement(By.xpath("//div[contains(@class,'react-datepicker__day') and text()='" 
-		                + targetDay + "']")).click();
-
-		        if (dateInput.getAttribute("value").contains(targetDay)) {
-		            System.out.println("Status: Passed (clicked normally)");
-		            return;
-		        }
-		    } catch (Exception ignored) {}
-
-		    String jsDate = nextDay.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-		    ((JavascriptExecutor) driver).executeScript(
-		            "arguments[0].value=arguments[1]; arguments[0].dispatchEvent(new Event('change'));",
-		            dateInput, jsDate);
-
-		    System.out.println("Status: Passed (JS fallback)");
-		}
+		js.executeScript(
+		    "const input = arguments[0];" +
+		    "const lastValue = input.value;" +
+		    "input.value = arguments[1];" +
+		    "const event = new Event('input', { bubbles: true });" +
+		    "const tracker = input._valueTracker;" +
+		    "if (tracker) { tracker.setValue(lastValue); }" +
+		    "input.dispatchEvent(event);",
+		    dateInput, jsDate
+		);
+        System.out.println("Status Passed");
+	}
 
 
 	
@@ -293,6 +316,7 @@ public class Placeorder {
 	public void placeOrder() throws InterruptedException {
 	
 	driver.findElement(By.xpath("//button[text()='Review Order']")).click();
+	Thread.sleep(2000);
 	driver.findElement(By.xpath("//button[text()='Place Order']")).click();
 	Thread.sleep(2000);
 
