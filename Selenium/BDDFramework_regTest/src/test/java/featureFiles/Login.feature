@@ -4,8 +4,8 @@ Feature: Login
 
 Scenario: Successful Login with Valid Credentials
     Given User Launch the Chrome browser
-    When User opens URL "https://mktadmin.freshontable.com/"
-    And User enters username "UAEADMIN" and password "Admin@4321"
+    When User opens URL "https://uatadmin.freshontable.com/"
+    And User enters username "UAEADMIN" and password "Admin@1234"
     And Click on login button
     Then Page Title should be "FRESHONTABLE"
     And Close the browser

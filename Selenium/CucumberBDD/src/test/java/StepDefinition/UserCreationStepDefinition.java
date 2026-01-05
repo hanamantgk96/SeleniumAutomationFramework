@@ -23,7 +23,7 @@ public class UserCreationStepDefinition {
 		
 	}
 
-	@Given("Clicks on the {Create Organization} option")
+	@Given("Clicks on the {string} option")
 	public void clicks_on_the_option(String string) throws InterruptedException {
 		UserCreation user = testsetup.pageObjectManager.getUserCreation();
 		Thread.sleep(2000);
@@ -36,7 +36,7 @@ public class UserCreationStepDefinition {
 		user.orgName();
 	}
 
-	@Then("Selects {Business} as the organization type")
+	@Then("Selects {string} as the organization type")
 	public void selects_as_the_organization_type(String string) throws InterruptedException {
 		UserCreation user = testsetup.pageObjectManager.getUserCreation();
 		user.orgTypebusiness();

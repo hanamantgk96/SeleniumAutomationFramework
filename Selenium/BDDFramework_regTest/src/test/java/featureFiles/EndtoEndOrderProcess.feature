@@ -58,7 +58,6 @@ Background:
   And the user verifies that all selected orders are displayed and clicks Submit
   Then the delivery schedule is created successfully
  
-  
   Scenario: Generate Invoice
   Given User navigates to the View Order page
   And User searches for the Order ID
@@ -66,5 +65,9 @@ Background:
   And User verifies the order details and clicks the "Generate Invoice" button
   Then User gets a confirmation popup and clicks OK
   And Order is invoiced successfully
+  Then User verifies the order status is "Awaiting Payment"
+  And User go to more button and click "Payment Against Invoice" option
+  Then User select the order and enters the Amount,Transaction id and comments
+  And Order is updated to "Completed" status successfully
     
     

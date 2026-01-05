@@ -28,20 +28,23 @@ public class DeliveryModule {
 	By placeschedule = By.xpath("//ul//li//span[text()='Schedule']");
 //	By createdeliveryschedule = By.xpath("//button[text()='Create Delivery Schedule +']");
 
-	public void clickgrid() {
+	public void clickgrid() throws InterruptedException {
+		Thread.sleep(5000);
 		driver.findElement(clickgrid).click();
 	}
 
-	public void clickdeliveryoption() {
+	public void clickdeliveryoption() throws InterruptedException {
+		Thread.sleep(2500);
 		driver.findElement(clickdelivery).click();
 	}
 
-	public void clickschedule() {
+	public void clickschedule() throws InterruptedException {
+		Thread.sleep(2500);
 		driver.findElement(placeschedule).click();
 	}
 
 	public void clickcreatedeliveryschedule() throws InterruptedException {
-		Thread.sleep(2000);
+		Thread.sleep(10000);
 		driver.findElement(By.xpath("//button[text()='Create Delivery Schedule +']")).click();
 	}
 
@@ -237,39 +240,50 @@ public class DeliveryModule {
 
 	public void CompletingSchedule() throws InterruptedException {
 
+		Thread.sleep(2000);
+
+		driver.findElement(
+		    By.xpath("(//button[@type='button' and @class='actions-dropdown dropdown-toggle btn btn-success'])[1]")
+		).click();
+
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//a[text()='View Trip']")).click();
+
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//div[@class='dropdown-container']//img")).click();
+
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//li[text()='View Details']")).click();
+
+		Thread.sleep(2000);
+
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
-		int businessCount = driver.findElements(
-		        By.xpath("//div[contains(@class,'accordion-header')]")
-		).size();
+		By businessBy = By.xpath("//div[contains(@class,'accordion-header')]");
+		By ordersBy = By.xpath("//tbody/tr[not(contains(@style,'display:none'))]");
+
+		// ✅ WAIT until at least one business exists
+		wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(businessBy, 0));
+
+		int businessCount = driver.findElements(businessBy).size();
 
 		for (int i = 0; i < businessCount; i++) {
 
-		    // 🔁 ALWAYS re-locate business headers
-		    List<WebElement> businesses = wait.until(
-		            ExpectedConditions.presenceOfAllElementsLocatedBy(
-		                    By.xpath("//div[contains(@class,'accordion-header')]")
-		            )
-		    );
-
-		    WebElement currentBusiness = businesses.get(i);
+		    // ✅ SAFE access
+		    wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(businessBy, i));
+		    WebElement currentBusiness = driver.findElements(businessBy).get(i);
 		    wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
-		    Thread.sleep(1500);
+
+		    Thread.sleep(2000);
 
 		    while (true) {
 
-		        // 🔁 Re-locate visible orders every iteration
-		        List<WebElement> orders = wait.until(
-		                ExpectedConditions.presenceOfAllElementsLocatedBy(
-		                        By.xpath("//tbody/tr[not(contains(@style,'display:none'))]")
-		                )
-		        );
-
+		        List<WebElement> orders = driver.findElements(ordersBy);
 		        WebElement pendingOrder = null;
 
 		        for (WebElement order : orders) {
-		            boolean isCompleted = order
-		                    .findElements(By.xpath(".//div[@title='Completed']")).size() > 0;
+		            boolean isCompleted =
+		                order.findElements(By.xpath(".//div[@title='Completed']")).size() > 0;
 
 		            if (!isCompleted) {
 		                pendingOrder = order;
@@ -278,63 +292,49 @@ public class DeliveryModule {
 		        }
 
 		        if (pendingOrder == null) {
+
 		            System.out.println("All orders completed for business " + (i + 1));
 
-		            // Collapse accordion safely
-		            businesses = driver.findElements(
-		                    By.xpath("//div[contains(@class,'accordion-header')]")
-		            );
-		            wait.until(ExpectedConditions.elementToBeClickable(businesses.get(i))).click();
-		            Thread.sleep(1000);
+		            // ✅ SAFE re-click
+		            wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(businessBy, i));
+		            currentBusiness = driver.findElements(businessBy).get(i);
+		            wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+
+		            Thread.sleep(1500);
 		            break;
 		        }
 
-		        // 🔁 Re-locate More button from fresh DOM
 		        WebElement moreBtn = pendingOrder.findElement(
-		                By.xpath(".//button[contains(@class,'actions-dropdown')]")
-		        );
+		            By.xpath(".//button[contains(@class,'actions-dropdown')]"));
 		        wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
 
 		        wait.until(ExpectedConditions.elementToBeClickable(
-		                By.xpath("//a[normalize-space()='Change Status']")
-		        )).click();
+		            By.xpath("//a[normalize-space()='Change Status']"))).click();
 
 		        WebElement statusDropdown = wait.until(
-		                ExpectedConditions.elementToBeClickable(By.name("selectedStatus"))
-		        );
+		            ExpectedConditions.presenceOfElementLocated(By.name("selectedStatus")));
 		        new Select(statusDropdown).selectByVisibleText("Completed");
 
 		        WebElement comment = wait.until(
-		                ExpectedConditions.elementToBeClickable(By.name("comment"))
-		        );
+		            ExpectedConditions.elementToBeClickable(By.name("comment")));
 		        comment.clear();
 		        comment.sendKeys("Schedule Completed Successfully");
 
 		        wait.until(ExpectedConditions.elementToBeClickable(
-		                By.xpath("//button[normalize-space()='Submit']")
-		        )).click();
+		            By.xpath("//button[normalize-space()='Submit']"))).click();
 
-		        // 🔁 Wait for UI refresh after submit
 		        Thread.sleep(2000);
 
-		        // 🔁 Re-open accordion again
-		        businesses = driver.findElements(
-		                By.xpath("//div[contains(@class,'accordion-header')]")
-		        );
-		        wait.until(ExpectedConditions.elementToBeClickable(businesses.get(i))).click();
+		        // ✅ SAFE re-open after DOM refresh
+		        wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(businessBy, i));
+		        currentBusiness = driver.findElements(businessBy).get(i);
+		        wait.until(ExpectedConditions.elementToBeClickable(currentBusiness)).click();
+
 		        Thread.sleep(1500);
 		    }
 		}
-
-		WebElement backArrow = wait.until(
-		        ExpectedConditions.elementToBeClickable(
-		                By.cssSelector("[data-testid='ArrowBackIcon']")
-		        )
-		);
-		backArrow.click();
-
-			}
-		
-
+		   
 	}
+}
+	
 

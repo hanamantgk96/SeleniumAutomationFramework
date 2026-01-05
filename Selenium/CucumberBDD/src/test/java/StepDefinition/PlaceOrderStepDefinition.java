@@ -25,6 +25,8 @@ public class PlaceOrderStepDefinition {
 	    Thread.sleep(2000);
 	    order.clickbusinessfield();
 	    Thread.sleep(10000);
+	    order.validatePagination();
+	    Thread.sleep(1000);
 		order.selectbusinessrandomaly1();
 	    Thread.sleep(2000);
 //	    order.Businessfilteration();

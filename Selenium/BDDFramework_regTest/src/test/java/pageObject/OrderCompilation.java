@@ -1,11 +1,15 @@
 package pageObject;
 
 import java.time.Duration;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeoutException;
+import java.util.List;
+import java.util.Random;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -116,7 +120,7 @@ public class OrderCompilation {
 
 	public void clickMoreButton() throws InterruptedException {
 		Thread.sleep(2000);
-		driver.findElement(By.xpath("//button[text()='More']")).click();
+		driver.findElement(By.xpath("(//button[text()='More'])[1]")).click();
 	}
 	
 	public void clickShowAllOptions() throws InterruptedException {
@@ -140,117 +144,189 @@ public class OrderCompilation {
 		Thread.sleep(2000);
 	}
 	
-	//order completion
 	
-	public String getOrderStatus(String orderId) {
-	    By statusLocator = By.xpath(
-	        "//tr[td[normalize-space()='" + orderId + "']]/td[last()-1]//span"
-	    );
-	    return driver.findElement(statusLocator).getText().trim();
-	}
-	
-	public void waitUntilStatusAppears(String expectedStatus) {
+	  public void waitUntilAwaitingPaymentAndClickMore() throws InterruptedException {
 
-	    By firstRowStatus = By.xpath(
-	        "(//table//tr[1]/td[last()-1]//span)[1]"
-	    );
+	        int refreshTimes = 5;
+	        int refreshIntervalSec = 30;
 
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofMinutes(3));
-	    wait.until(driver -> {
-	        String status = driver.findElement(firstRowStatus).getText().trim();
-	        System.out.println("Current status: " + status);
-	        return status.equalsIgnoreCase(expectedStatus);
-	    });
-	}
-	public void clickMoreOnFirstRow() {
+	        By filterIcon = By.xpath("(//*[name()='svg' and @data-testid='FilterAltRoundedIcon'])[1]");
+	        By searchBoxLocator = By.xpath("//input[@type='text' and @placeholder='Order ID']");
 
-	    By moreBtn = By.xpath(
-	        "(//table//tr[1]//button[normalize-space()='More'])[1]"
-	    );
+	        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	        JavascriptExecutor js = (JavascriptExecutor) driver;
 
-	    new WebDriverWait(driver, Duration.ofSeconds(10))
-	            .until(ExpectedConditions.elementToBeClickable(moreBtn))
-	            .click();
-	}
-
-	
-	
-/*	public void waitUntilAwaitingPaymentAndClickMore() throws InterruptedException, TimeoutException {
-
-	    By firstRowStatus = By.xpath(
-	        "(//table//tr[1]//span)[1]"
-	    );
-
-	    By firstRowMoreBtn = By.xpath(
-	        "(//table//tr[1]//button[contains(@class,'actions-dropdown')])[1]"
-	    );
-
-	    long timeoutMillis = Duration.ofMinutes(2).toMillis();
-	    long startTime = System.currentTimeMillis();
-
-	    while (System.currentTimeMillis() - startTime < timeoutMillis) {
-
-	        String status = driver.findElement(firstRowStatus).getText().trim();
-	        System.out.println("Current status: " + status);
-
-	        if ("Awaiting Payment".equalsIgnoreCase(status)) {
-	            new WebDriverWait(driver, Duration.ofSeconds(10))
-	                    .until(ExpectedConditions.elementToBeClickable(firstRowMoreBtn))
-	                    .click();
-	            return; // ✅ EXIT IMMEDIATELY
+	        // ---------------- REFRESH PAGE ----------------
+	        for (int i = 1; i <= refreshTimes; i++) {
+	            System.out.println("Refresh Attempt " + i + " of " + refreshTimes);
+	            driver.navigate().refresh();
+	            Thread.sleep(refreshIntervalSec * 1000L);
 	        }
 
-	        driver.navigate().refresh();
-	        Thread.sleep(15000);
+	        // ---------------- CLICK FILTER ICON ----------------
+	        clickWithRetry(filterIcon, wait, js);
+
+	        // ---------------- ENTER ORDER ID ----------------
+	        WebElement searchBox = wait.until(
+	                ExpectedConditions.elementToBeClickable(searchBoxLocator)
+	        );
+
+	        Thread.sleep(3000);
+
+	        String orderId = Placeorder.orderId;
+	        System.out.println("Order ID = " + orderId);
+
+	        searchBox.clear();
+	        searchBox.sendKeys(orderId);
+	        Thread.sleep(1000);
+	        searchBox.sendKeys(Keys.ENTER);
+
+	        Thread.sleep(3000);
 	    }
 
-	    throw new TimeoutException("Status did not change to Awaiting Payment");
-	}*/
+	    // ---------------- HELPER METHOD ----------------
+	    private void clickWithRetry(By locator, WebDriverWait wait, JavascriptExecutor js) {
 
-/*	public void clickPaymentAgainstInvoice() {
+	        int attempts = 0;
 
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	        while (attempts < 5) {
+	            try {
+	                WebElement element = wait.until(
+	                        ExpectedConditions.refreshed(
+	                                ExpectedConditions.elementToBeClickable(locator)
+	                        )
+	                );
 
-	    By paymentOption = By.xpath(
-	        "//a[normalize-space()='Payment Against Invoice']"
-	    );
+	                // Handle overlays safely
+	                List<WebElement> overlays =
+	                        driver.findElements(By.cssSelector(".overlay, .modal, .loader"));
 
-	    wait.until(ExpectedConditions.elementToBeClickable(paymentOption)).click();
-	}*/
+	                for (WebElement overlay : overlays) {
+	                    if (overlay.isDisplayed()) {
+	                        js.executeScript("arguments[0].style.display='none';", overlay);
+	                        System.out.println("Overlay dismissed");
+	                    }
+	                }
 
+	                // Scroll into view
+	                js.executeScript(
+	                        "arguments[0].scrollIntoView({block:'center'});",
+	                        element
+	                );
 
-	/*public void completeOrder(String orderId) {
+	                try {
+	                    element.click();
+	                } catch (ElementClickInterceptedException e) {
+	                    js.executeScript("arguments[0].click();", element);
+	                }
 
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	                return;
 
-	    // Click More for specific order
-//	    By moreBtn = By.xpath(
-//	        "//tr[td[normalize-space()='" + orderId + "']]//button[normalize-space()='More']"
-//	    );
-//	    wait.until(ExpectedConditions.elementToBeClickable(moreBtn)).click();
+	            } catch (StaleElementReferenceException |
+	                     TimeoutException |
+	                     ElementClickInterceptedException e) {
 
-	    // Show all options (optional)
-	    By showAll = By.xpath("//div[normalize-space()='Show all options']");
-	    if (!driver.findElements(showAll).isEmpty()) {
-	        wait.until(ExpectedConditions.elementToBeClickable(showAll)).click();
+	                attempts++;
+	                System.out.println("Retrying click (" + attempts + "/5) due to "
+	                        + e.getClass().getSimpleName());
+
+	                try {
+	                    Thread.sleep(1000);
+	                } catch (InterruptedException ignored) {}
+	            }
+	        }
+
+	        throw new RuntimeException("Failed to click element after retries: " + locator);
 	    }
 
-	    // Payment Against Invoice (MENU ITEM — not table row)
-	    By paymentOption = By.xpath("//a[normalize-space()='Payment Against Invoice']");
-	    wait.until(ExpectedConditions.elementToBeClickable(paymentOption)).click();
-
-	    // Submit
-	    By submitBtn = By.xpath("//button[normalize-space()='Submit']");
-	    wait.until(ExpectedConditions.elementToBeClickable(submitBtn)).click();
-	}*/
-
+	    
 	
-//	public void verifyCompleted(String orderId) {
-//	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-//	    wait.until(driver ->
-//	        getOrderStatus(orderId).equalsIgnoreCase("Completed")
-//	    );
-//	}
+
+ public void clickMoreOption() throws InterruptedException {
+	 
+	 Thread.sleep(3000);
+	 
+	 driver.findElement(By.xpath("//table//tbody/tr[1]//button[contains(text(),'More')]")).click();
+	 
+	 Thread.sleep(2000);
+	 
+	 driver.findElement(By.xpath("//div[text()='Show all options']")).click();
+ }
+
+
+	public void clickPaymentAgainstInvoice() throws InterruptedException {
+
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	    
+	    Thread.sleep(2000);
+
+	    By paymentOption = By.xpath("//a[normalize-space()='Payment Against Invoice']");
+
+	    wait.until(ExpectedConditions.elementToBeClickable(paymentOption)).click();
+	}
+
+	public void completeOrder() throws InterruptedException {
+		
+		Thread.sleep(2500);
+		
+		driver.findElement(By.xpath("(//input[@class='grid-checkbox-input  cursor-pointer' and @type='checkbox'])[2]")).click();
+		
+		Thread.sleep(2500);
+		
+		// ---------------- GENERATE TRANSACTION ID ----------------
+		int prefixLength = 5;      // 5 random letters
+		int digitLength = 11;      // 11 digits
+
+		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		Random random = new Random();
+		StringBuilder sb = new StringBuilder();
+
+		// Generate random 5-letter prefix
+		for (int i = 0; i < prefixLength; i++) {
+		    sb.append(letters.charAt(random.nextInt(letters.length())));
+		}
+
+		// Generate digits
+		for (int i = 0; i < digitLength; i++) {
+		    sb.append(random.nextInt(10));
+		}
+
+		String transactionId = sb.toString();
+		System.out.println("Generated Transaction ID: " + transactionId);
+
+		// ---------------- SEND KEYS ----------------
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+		WebElement transIdInput = wait.until(
+		        ExpectedConditions.elementToBeClickable(
+		                By.xpath("//input[@name='transId']")
+		        )
+		);
+
+		transIdInput.clear();
+		transIdInput.sendKeys(transactionId);
+
+		
+		Thread.sleep(2500);
+		
+		wait.until(ExpectedConditions.elementToBeClickable(
+		        By.xpath("//textarea[@type='textarea']")))
+		    .sendKeys("Payment completed successfully");
+		
+		Thread.sleep(2500);
+		
+		driver.findElement(By.xpath("//button[text()='Submit']")).click();
+		
+		Thread.sleep(2500);
+		
+		driver.findElement(By.xpath("//button[text()='Confirm']")).click();
+		
+		Thread.sleep(2500);
+		
+		driver.findElement(By.xpath("//button[text()='OK']")).click();
+		
+		
+	}
 
 	}
 

@@ -11,17 +11,15 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 public class PlaceOrder {
 
@@ -31,13 +29,14 @@ public class PlaceOrder {
 	
 	public PlaceOrder(WebDriver driver) {
 		this.driver = driver;
+	    this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 	}
 	
 	By clickgrid = By.xpath("//div[@class='menu-cont' ] //img[@alt='img']");
 	By clickorder = By.xpath("//ul//li//span[text()='Order']");
 	By placeorder = By.xpath("//ul//li//span[text()='Place Order']");
-	By clickbusiness = By.xpath("//div[@style=\"position: absolute; top: 10px; right: 12px;\"]");
-	By selectbusiness = By.xpath("//*[@id=\"grid_732322063_0_content_table\"]/tbody/tr");
+	By clickbusiness = By.xpath("//div[@style='position: absolute; top: 10px; right: 12px;']");
+//	By selectbusiness = By.xpath("//*[@id=\"grid_732322063_0_content_table\"]/tbody/tr");
 	By Reviewbutton = By.xpath("//button[text()='Review Order']");
 
 	public void clickgrid() {
@@ -56,12 +55,150 @@ public class PlaceOrder {
 		driver.findElement(clickbusiness).click();
 	}
 	
-		public void selectbusinessrandomaly1() throws InterruptedException {
-		List<WebElement> rows = driver.findElements(selectbusiness);
+	
+	 public void validatePagination() {
+		     		 	 
+//Page Calculation	 
+
+		 WebElement paginationElement = driver.findElement(By.xpath("//div[contains(text(),'pages')]"));
+		 String paginationText = paginationElement.getText();  // e.g. "1 of 99 pages (984 items)"
+
+		 // Extract total items
+		 int totalItems = Integer.parseInt(paginationText.replaceAll(".*\\((\\d+) items\\).*", "$1"));
+		 System.out.println("Total Items: " + totalItems);
+
+		 // Extract total pages from UI
+		 int totalPages = Integer.parseInt(paginationText.replaceAll(".*of (\\d+) pages.*", "$1"));
+		 System.out.println("Total Pages (UI): " + totalPages);
+
+		 // Get items per page from dropdown
+		 WebElement itemsPerPageDropdown = driver.findElement(By.cssSelector("select.custom-pagination-dropdown"));
+		 Select select1 = new Select(itemsPerPageDropdown);
+		 int itemsPerPage1 = Integer.parseInt(select1.getFirstSelectedOption().getText().trim());
+		 System.out.println("Items Per Page: " + itemsPerPage1);
+
+		 // Perform division (double for decimal precision)
+		 double divisionResult = (double) totalItems / itemsPerPage1;
+		 System.out.println(totalItems + " divided by " + itemsPerPage1 + " = " + divisionResult);
+
+		 // Calculate total pages (round up)
+		 int calculatedPages = (int) Math.ceil(divisionResult);
+		 System.out.println("Calculated Total Pages (rounded up): " + calculatedPages);
+
+		 // Validate
+		 if (calculatedPages == totalPages) {
+		     System.out.println("Pagination validation passed!");
+		 } else {
+		     throw new AssertionError("Pagination validation failed! Calculated pages: " + calculatedPages + ", but UI shows: " + totalPages);
+		 }
+		 
+		 
+		 
+		// --- STEP 1: VERIFY DEFAULT STATE (10) ---
+		 WebElement itemsPerPage = driver.findElement(By.xpath("//select[@class='custom-pagination-dropdown']"));
+		 Select select = new Select(itemsPerPage);
+
+		 // 1. Verify Dropdown UI text
+		 String defaultVal = select.getFirstSelectedOption().getText();
+		 Assert.assertEquals(defaultVal.trim(), "10", "Default value is not 10!");
+		 System.out.println("Step 1: UI Dropdown default is confirmed as: " + defaultVal);
+
+		 // 2. Verify Table Row count
+		 wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//table/tbody/tr")));
+		 List<WebElement> defaultRows = driver.findElements(By.xpath("//table/tbody/tr"));
+
+		 int initialCount = defaultRows.size();
+		 Assert.assertEquals(initialCount, 10, "Default row count is not 10!");
+		 System.out.println("Step 2: Default table line items verified. Count = " + initialCount);
+
+
+		 // --- STEP 3: CHANGE TO 25 AND VERIFY ---
+		 System.out.println("Step 3: Changing dropdown selection to 25...");
+		 select.selectByValue("25");
+
+		 // 4. Wait for the rows to update to exactly 25
+		 wait.until(ExpectedConditions.numberOfElementsToBe(By.xpath("//table/tbody/tr"), 25));
+
+		 List<WebElement> updatedRows = driver.findElements(By.xpath("//table/tbody/tr"));
+		 int finalCount = updatedRows.size();
+
+		 Assert.assertEquals(finalCount, 25, "Row count did not update to 25!");
+		 System.out.println("Step 4: Table refreshed successfully. New line item count = " + finalCount);
+		
+	 }
+	
+//selecting business	
+		public void selectbusinessrandomaly1() throws InterruptedException {			
+			
 		Random random = new Random();
-		int randomIndex = random.nextInt(rows.size());
-		rows.get(randomIndex).click();
-	}
+
+
+		 while (true) {  
+
+	            wait.until(ExpectedConditions.visibilityOfElementLocated(
+	                    By.xpath("//table/tbody/tr")));
+
+	            WebElement pagesText = wait.until(ExpectedConditions.visibilityOfElementLocated(
+	                    By.xpath("//label[contains(text(),'of')]")));
+
+	            int totalPages = Integer.parseInt(pagesText.getText().replaceAll("\\D+", ""));
+	            int randomPage = random.nextInt(totalPages) + 1;
+
+	            for (int i = 1; i < randomPage; i++) {
+
+	                String firstRowBefore = driver.findElement(
+	                        By.xpath("//table/tbody/tr[1]")).getText();
+
+	                WebElement nextBtn = wait.until(ExpectedConditions.elementToBeClickable(
+	                        By.xpath("//button[@type='button' and @aria-label='Next']")));
+	                nextBtn.click();
+
+	                wait.until(ExpectedConditions.not(
+	                        ExpectedConditions.textToBePresentInElementLocated(
+	                                By.xpath("//table/tbody/tr[1]"), firstRowBefore)));
+
+	                wait.until(ExpectedConditions.visibilityOfElementLocated(
+	                        By.xpath("//table/tbody/tr")));
+	            }
+
+	            // Check for "No records to display"
+	            List<WebElement> noRecordsElements = driver.findElements(
+	                    By.xpath("//div[contains(text(),'No records to display')]"));
+
+	            if (noRecordsElements.size() > 0) {
+	                System.out.println("No products found on selected business. Clicking business selector again...");
+
+	                // Click business selector icon to allow re-selection
+	                wait.until(ExpectedConditions.elementToBeClickable(clickbusiness)).click();
+
+	                // Optionally, add a small wait or logic to pick another business here
+
+	                continue;  // Retry whole process
+	            }
+
+	            // Safe random row click with retry
+	            for (int attempt = 0; attempt < 3; attempt++) {
+	                try {
+	                    List<WebElement> rows = driver.findElements(
+	                            By.xpath("//table/tbody/tr"));
+
+	                    rows.get(random.nextInt(rows.size())).click();
+
+	                    System.out.println("Random Business Selected Successfully");
+	                    return; 
+
+	                } catch (StaleElementReferenceException e) {
+	                }
+	            }
+
+	            System.out.println("Failed to select random business row after retries.");
+	            break;
+	        }
+	    }
+	
+	    
+	
+		
 	
 /*		public void Businessfilteration() {
 		
@@ -271,41 +408,6 @@ public class PlaceOrder {
 		}
 	}
 
-	public void Lpo_Num_popupErrorValidation() throws InterruptedException {
-		Thread.sleep(1000);
-		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
-		reviewOrderButton.click();
-		Thread.sleep(1000);
-
-		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
-		okButton.click();
-
-		Thread.sleep(1000);
-
-		try {
-			WebElement LPONumberField = driver.findElement(By.name("lpo_number"));
-
-			if (LPONumberField.getAttribute("value").isEmpty()) {
-				System.out.println("Status failed: Procced without providing LPO Number reference in the order(mandatory).");
-				Thread.sleep(1000);
-
-				LPONumberField.sendKeys("05-march-2025");
-				Thread.sleep(1000);
-
-				if (!LPONumberField.getAttribute("value").isEmpty()) {
-					System.out.println("Status Passed");
-				} else {
-					System.out.println("Test Case Failed: LPO Number is still empty.");
-				}
-			} else {
-				System.out.println(
-						"Status Passed: LPO Number is already filled - " + LPONumberField.getAttribute("value"));
-			}
-		} catch (Exception e) {
-			System.out.println("LPO Number field not found or an error occurred: " + e.getMessage());
-		}
-	}
-
 	public void selectPaymentModeByIndex(int index) throws InterruptedException {
 		Thread.sleep(2000);
 		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
@@ -411,10 +513,44 @@ public class PlaceOrder {
 
 		dropdown.selectByIndex(2);
 	}
-//	public void driverclose() {
-//		driver.close();
-//	}
 
+	
+	public void Lpo_Num_popupErrorValidation() throws InterruptedException {
+		Thread.sleep(1000);
+		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
+		reviewOrderButton.click();
+		Thread.sleep(1000);
+
+		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
+		okButton.click();
+
+		Thread.sleep(1000);
+
+		try {
+			WebElement LPONumberField = driver.findElement(By.name("lpo_number"));
+
+			if (LPONumberField.getAttribute("value").isEmpty()) {
+				System.out.println("Status failed: Procced without providing LPO Number reference in the order(mandatory).");
+				Thread.sleep(1000);
+
+				LPONumberField.sendKeys("05-march-2025");
+				Thread.sleep(1000);
+
+				if (!LPONumberField.getAttribute("value").isEmpty()) {
+					System.out.println("Status Passed");
+				} else {
+					System.out.println("Test Case Failed: LPO Number is still empty.");
+				}
+			} else {
+				System.out.println(
+						"Status Passed: LPO Number is already filled - " + LPONumberField.getAttribute("value"));
+			}
+		} catch (Exception e) {
+			System.out.println("LPO Number field not found or an error occurred: " + e.getMessage());
+		}
+	}
+	
+	
 	public void validateTotalAmount(double prdValu) throws InterruptedException {
 		Thread.sleep(1000);
 

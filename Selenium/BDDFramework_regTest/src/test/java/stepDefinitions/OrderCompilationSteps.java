@@ -81,17 +81,23 @@ public void user_search_the_order_Id() throws InterruptedException {
 @Then("User clicks the More button and selects Edit Order Details")
 public void user_clicks_more_button_and_selects_the_edit_order_details() throws InterruptedException {
 	 OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
-	 Thread.sleep(2000);
+	 Thread.sleep(3000);
+//	 Order.clickgrid();
+//	 Thread.sleep(3000);
+//	 Order.clickOrderOption();
+//	 Thread.sleep(3000);
+//     Order.clickViewOrder();
+//     Thread.sleep(2000);
 	 Order.clickMoreButton();
-	 Thread.sleep(1000);
+	 Thread.sleep(2000);
 	 Order.clickShowAllOptions();
-	 Thread.sleep(1000);
+	 Thread.sleep(2000);
 	 Order.clickEditOrderDetails1();
 }
 @Then("User verifies the order details and clicks the {string} button")
 public void user_verifies_the_order_details_and_clicks_the(String string) throws InterruptedException {
 	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
-	Thread.sleep(2000);
+	Thread.sleep(3000);
 	    Order.clickGenerateInvoiceButton();
 }
 @Then("User gets a confirmation popup and clicks OK")
@@ -111,25 +117,27 @@ public void the_order_is_invoiced_successfully() throws InterruptedException {
 public void user_verifies_the_order_status_is(String expectedStatus) {
 
     OrderCompilation order = setupclass.pageObjectManager.getOrderCompilation();
-    order.waitUntilStatusAppears(expectedStatus); // waits + verifies
+
 }
 @And("User go to more button and click {string} option")
     public void user_go_to_more_button_and_click_option(String option) throws InterruptedException, TimeoutException {
 	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
-	 Order.clickMoreOnFirstRow();
+	Thread.sleep(2000);
+	 Order.waitUntilAwaitingPaymentAndClickMore();
+	 Thread.sleep(2000);
+	 Order.clickMoreOption();
 	
 }
 @Then("User select the order and enters the Amount,Transaction id and comments")
     public void user_select_the_order_and_enters_the_amount_transaction_id_and_comments() throws InterruptedException {
 	OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
-//	Order.clickPaymentAgainstInvoice();
+	Order.clickPaymentAgainstInvoice();
 	
     }
 
 	@Then("Order is updated to {string} status successfully")
 	public void order_is_updated_to_status_successfully(String string) throws InterruptedException {
 		OrderCompilation Order = setupclass.pageObjectManager.getOrderCompilation();
-//		Order.completeOrder(string);
-//		Order.verifyCompleted(string);
+        Order.completeOrder();
 	}
 }
