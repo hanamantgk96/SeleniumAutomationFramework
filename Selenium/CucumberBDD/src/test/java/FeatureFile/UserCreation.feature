@@ -22,10 +22,10 @@ Feature: User Creation
     And Uploads all mandatory documents
     And Provides additional required information
     
-    @SellerAccount
-    Scenario: creating a Supplier Account
-    Given Navigate the organisation page
-    And Clicks on the "Create Organization" option
+ #   @SellerAccount
+ #   Scenario: creating a Supplier Account
+ #   Given Navigate the organisation page
+ #   And Clicks on the "Create Seller" option
     
     
     

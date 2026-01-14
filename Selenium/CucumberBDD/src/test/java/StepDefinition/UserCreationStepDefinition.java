@@ -2,6 +2,7 @@ package StepDefinition;
 
 import PageObject.UserCreation;
 import Utils.Setuptest;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -23,11 +24,11 @@ public class UserCreationStepDefinition {
 		
 	}
 
-	@Given("Clicks on the {string} option")
-	public void clicks_on_the_option(String string) throws InterruptedException {
-		UserCreation user = testsetup.pageObjectManager.getUserCreation();
-		Thread.sleep(2000);
-		user.clickCreateOrganisation();
+	@And("Clicks on the \"Create Organization\" option")
+	public void clicks_on_create_organization_option() throws InterruptedException {
+	    UserCreation user = testsetup.pageObjectManager.getUserCreation();
+	    Thread.sleep(2000);
+	    user.clickCreateOrganisation();
 	}
 
 	@Then("The user selects an organization type from the dropdown")
@@ -35,13 +36,11 @@ public class UserCreationStepDefinition {
 		UserCreation user = testsetup.pageObjectManager.getUserCreation();
 		user.orgName();
 	}
-
-	@Then("Selects {string} as the organization type")
-	public void selects_as_the_organization_type(String string) throws InterruptedException {
-		UserCreation user = testsetup.pageObjectManager.getUserCreation();
-		user.orgTypebusiness();
 		
-		
+	@And("Selects \"Business\" as the organization type")
+	public void selects_business_as_the_organization_type() throws InterruptedException {
+	    UserCreation user = testsetup.pageObjectManager.getUserCreation();
+	    user.orgTypebusiness();
 	}
 
 	@Then("Fills in all mandatory fields for Organization Details")
