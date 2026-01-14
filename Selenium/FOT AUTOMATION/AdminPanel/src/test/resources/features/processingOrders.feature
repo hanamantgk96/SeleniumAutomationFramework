@@ -200,6 +200,7 @@ Feature: Create Transform Order
     Then search the product and UOM for the processed variant  
     And select the seller used while converting the order from Draft to Created.  
     Then select the batch details and verify the added quantity and the performed action "Stock Entry"
+    Then search the wastage product and UOM used in the transformation
     And  select the seller "FreshonTable DWC LLC" to which the wastage product is credited
     Then select the batch details and verify the added quantity for wastage and the performed action "Stock Entry"
     
@@ -430,6 +431,7 @@ Feature: Create Transform Order
     Then search the product and UOM for the processed variant  
     And select the seller used while converting the order from Draft to Created.  
     Then select the batch details and verify the added quantity and the performed action "Stock Entry"
+    
       
       
 
