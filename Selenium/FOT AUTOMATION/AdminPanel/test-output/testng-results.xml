@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="1" passed="0" failed="1" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2026-01-14T16:36:35 IST" name="Default suite" finished-at="2026-01-14T16:38:53 IST" duration-ms="138100">
+    <groups>
+      <group name="cucumber">
+        <method signature="AbstractTestNGCucumberTests.runScenario(io.cucumber.testng.PickleWrapper,io.cucumber.testng.FeatureWrapper)[pri:0, instance:runner.TestRunner@707194ba]" name="runScenario" class="io.cucumber.testng.AbstractTestNGCucumberTests"/>
+      </group> <!-- cucumber -->
+    </groups>
+    <test started-at="2026-01-14T16:36:35 IST" name="Default test" finished-at="2026-01-14T16:38:53 IST" duration-ms="138100">
+      <class name="runner.TestRunner">
+        <test-method is-config="true" signature="setUpClass(org.testng.ITestContext)[pri:0, instance:runner.TestRunner@707194ba]" started-at="2026-01-14T16:36:35 IST" name="setUpClass" finished-at="2026-01-14T16:36:36 IST" duration-ms="1743" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[org.testng.TestRunner@f18b738]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpClass -->
+        <test-method signature="runScenario(io.cucumber.testng.PickleWrapper,io.cucumber.testng.FeatureWrapper)[pri:0, instance:runner.TestRunner@707194ba]" started-at="2026-01-14T16:36:36 IST" name="runScenario" description="Runs Cucumber Scenarios" data-provider="scenarios" finished-at="2026-01-14T16:38:53 IST" duration-ms="136219" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA["Validate Product transformation on seller change during draft-to-created order transition"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA["Create Transform Order"]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.RuntimeException">
+            <message>
+              <![CDATA[Option not found in grid: FreshonTable DWC LLC]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.RuntimeException: Option not found in grid: FreshonTable DWC LLC
+at utils.PageObjectUtils.selectByText(PageObjectUtils.java:139)
+at PageObjects.StockSummaryPage.selectSeller(StockSummaryPage.java:85)
+at stepDefinitions.ProcessingOrders.select_the_seller_to_which_the_wastage_product_is_credited(ProcessingOrders.java:508)
+at ✽.select the seller "FreshonTable DWC LLC" to which the wastage product is credited(file:///D:/FOT%20AUTOMATION/AdminPanel/src/test/resources/features/processingOrders.feature:203)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.RuntimeException -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- runScenario -->
+        <test-method is-config="true" signature="tearDownClass()[pri:0, instance:runner.TestRunner@707194ba]" started-at="2026-01-14T16:38:53 IST" name="tearDownClass" finished-at="2026-01-14T16:38:53 IST" duration-ms="26" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownClass -->
+      </class> <!-- runner.TestRunner -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
