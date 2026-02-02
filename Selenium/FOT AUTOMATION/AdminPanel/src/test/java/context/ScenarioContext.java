@@ -9,6 +9,7 @@ public class ScenarioContext {
 	private String changedUom;
 	private String changedSeller;
 	private String changedRequestedQty;
+	private String changedSourceProduct;
 	
 	
 
@@ -61,9 +62,15 @@ public class ScenarioContext {
 	public String getChangedRequestedQty() {
 		return changedRequestedQty;
 	}
-//	String productForStockEnytry=
-//			orderData.getTransFormedProduct()!=null?orderData.getTransFormedProduct():orderData.getProduct();
-//		
+	public void setChangedSourceProduct(String changedSourceProduct) {
+		this.changedSourceProduct = changedSourceProduct;
+		// TODO Auto-generated method stub
+		
+	}
+	public String getChangedSourceProduct() {
+		return changedSourceProduct;
+	}
+		
 
 	public void populateOrderData(io.cucumber.datatable.DataTable dataTable) {
 
@@ -110,6 +117,7 @@ public class ScenarioContext {
 		if (data.containsKey("actualYield"))
 			orderData.setActualYield(data.get("actualYield"));
 	}
+	
 
 	
 }
