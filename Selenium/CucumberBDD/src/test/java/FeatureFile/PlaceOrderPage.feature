@@ -10,12 +10,14 @@ Feature: Order Module
     And Veryfy the login is successful
 
   @placeorder
-  Scenario Outline: Validating with all Negative Test Cases are Working
-    Given Navigate to place order page
-    When Validate if the products are selected by clicking the Review order button and valiadte the error message
-    Then Validate if shipping date is provided by clicking the Review orders button and validate the error message
-    Then Validate if the Lpo number is provided by clicking the Review order button and validate the popup message
-    Then Validate if a payment method is selected by clicking the Review order button and capture the message
-    And Validate the if a billing address by clicking the Review order button and validate the popup message
-     
+ Scenario Outline: Validate All Test Cases for Order Creation
+Given the user navigates to the Place Order page
+When pagination is validated for business selection
+Then the user selects a random business; if a product does not exist, the user selects another business
+And the user selects random products from the list and enters random prices
+And the user selects the payment method and delivery user
+And the shipping date is validated
+And the user selects the billing address and shipping address
+And the LPO number is validated
+And Click the Review button and validate the total Amount of the Order
     

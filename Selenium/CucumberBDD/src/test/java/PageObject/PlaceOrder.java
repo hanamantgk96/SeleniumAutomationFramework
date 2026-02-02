@@ -1,10 +1,10 @@
 package PageObject;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -12,8 +12,11 @@ import java.util.Random;
 import java.util.Set;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -38,6 +41,7 @@ public class PlaceOrder {
 	By clickbusiness = By.xpath("//div[@style='position: absolute; top: 10px; right: 12px;']");
 //	By selectbusiness = By.xpath("//*[@id=\"grid_732322063_0_content_table\"]/tbody/tr");
 	By Reviewbutton = By.xpath("//button[text()='Review Order']");
+	
 
 	public void clickgrid() {
 		driver.findElement(clickgrid).click();
@@ -51,8 +55,9 @@ public class PlaceOrder {
 		driver.findElement(placeorder).click();
 	}
 
-	public void clickbusinessfield() {
+	public void clickbusinessfield() throws InterruptedException {
 		driver.findElement(clickbusiness).click();
+	 
 	}
 	
 	
@@ -113,7 +118,7 @@ public class PlaceOrder {
 
 
 		 // --- STEP 3: CHANGE TO 25 AND VERIFY ---
-		 System.out.println("Step 3: Changing dropdown selection to 25...");
+		 System.out.println("Step 3: Changing dropdown selection to 25");
 		 select.selectByValue("25");
 
 		 // 4. Wait for the rows to update to exactly 25
@@ -128,194 +133,299 @@ public class PlaceOrder {
 	 }
 	
 //selecting business	
-		public void selectbusinessrandomaly1() throws InterruptedException {			
-			
-		Random random = new Random();
+	 public void selectbusinessrandomaly1() throws InterruptedException {
+
+			    Random random = new Random();
+			    int maxRetries = 5;
+
+			    for (int retry = 0; retry < maxRetries; retry++) {
+
+			        // ---------- Get total pages ----------
+			        WebElement pagesText = wait.until(
+			                ExpectedConditions.visibilityOfElementLocated(
+			                        By.xpath("//label[contains(text(),'of')]")));
+
+			        String textContent = pagesText.getText().replaceAll("\\D+", "");
+			        int totalPages = textContent.isEmpty() ? 0 : Integer.parseInt(textContent);
+
+			        int randomPage = 1;
+			        if (totalPages > 0) {
+			            randomPage = random.nextInt(totalPages) + 1;
+			        }
+
+			        System.out.println("Random Page Selected: " + randomPage);
+
+			        // ---------- Navigate to random page ----------
+			        for (int i = 1; i < randomPage; i++) {
+
+			            String firstRowText =
+			                    driver.findElement(By.xpath("//table/tbody/tr[1]")).getText();
+
+			            WebElement nextBtn = wait.until(
+			                    ExpectedConditions.elementToBeClickable(
+			                            By.xpath("//button[@aria-label='Next']")));
+			            nextBtn.click();
+
+			            Thread.sleep(1200);
+
+			            wait.until(ExpectedConditions.not(
+			                    ExpectedConditions.textToBePresentInElementLocated(
+			                            By.xpath("//table/tbody/tr[1]"), firstRowText)));
+			        }
+
+			        // ---------- WAIT for business rows ----------
+			        Thread.sleep(4000);
+			        wait.until(ExpectedConditions.or(
+			                ExpectedConditions.visibilityOfElementLocated(By.xpath("//table/tbody/tr")),
+			                ExpectedConditions.visibilityOfElementLocated(
+			                        By.xpath("//table//td[normalize-space()='No records to display']"))
+			        ));
+
+			        List<WebElement> rows = driver.findElements(By.xpath("//table/tbody/tr"));
+
+			        // ---------- Click random business ----------
+			        if (!rows.isEmpty()) {
+			            rows.get(random.nextInt(rows.size())).click();
+			            System.out.println("Random business clicked. Checking products...");
+			        } else {
+			            System.out.println("No rows found. Retrying...");
+			            continue;
+			        }
+
+			        Thread.sleep(1500);
+
+			        // ---------- CHECK PRODUCTS ----------
+			        boolean noProducts = !driver.findElements(
+			                By.xpath("//table//td[normalize-space()='No records to display']"))
+			                .isEmpty();
+
+			        if (!noProducts) {
+			            System.out.println("✅ Products found. STOP.");
+			            return;
+			        }
+
+			        // ---------- APPLY FILTER (ONLY IF NO PRODUCTS) ----------
+			        System.out.println("No products found. Applying filter...");
+
+			        Thread.sleep(2000);
+			        driver.findElement(
+			                By.xpath("//div[@style='position: absolute; top: 10px; right: 12px;']"))
+			                .click();
+
+			        Thread.sleep(2000);
+
+			        for (int attempt = 0; attempt < 3; attempt++) {
+			            try {
+			                WebElement filterIcon = wait.until(
+			                        ExpectedConditions.elementToBeClickable(
+			                                By.xpath("(//div[@class='custom-filter-icon'])[4]")));
+			                filterIcon.click();
+			                break;
+			            } catch (StaleElementReferenceException e) {
+			                Thread.sleep(500);
+			            }
+			        }
+
+			        WebElement tradeNameInput = wait.until(
+			                ExpectedConditions.visibilityOfElementLocated(
+			                        By.xpath("//input[@placeholder='Trade Name']")));
+
+			        tradeNameInput.clear();
+			        Thread.sleep(2000);
+			        tradeNameInput.sendKeys("25hours Hotel Dubai One Central");
+			        Thread.sleep(2000);
+			        tradeNameInput.sendKeys(Keys.ENTER);
+
+			        // =========================================================
+			        // 🔥 MANDATORY CLICK AFTER ENTER (HARDENED)
+			        // =========================================================
+
+			        Thread.sleep(1500);
+
+			        By secondRowLocator = By.xpath("(//table//tbody/tr)[2]");
+
+			        for (int attempt = 0; attempt < 6; attempt++) {
+			            try {
+			                WebElement secondRow = wait.until(
+			                        ExpectedConditions.presenceOfElementLocated(secondRowLocator));
+
+			                wait.until(ExpectedConditions.elementToBeClickable(secondRow));
+
+			                ((JavascriptExecutor) driver)
+			                        .executeScript("arguments[0].scrollIntoView(true);", secondRow);
+
+			                secondRow.click(); // ✅ MUST CLICK
+			                break;
+
+			            } catch (StaleElementReferenceException e) {
+			                Thread.sleep(500);
+			            }
+			            catch (ElementClickInterceptedException e) {
+			                Thread.sleep(500);
+			            }
+			            catch (TimeoutException e) {
+			                Thread.sleep(500);
+			            } {
+
+			                Thread.sleep(500);
+			            }
+			        }
+
+			        Thread.sleep(3000);
+
+			        // ---------- FINAL PRODUCT CHECK (FILTERED BUSINESS) ----------
+			        wait.until(ExpectedConditions.or(
+			                ExpectedConditions.visibilityOfElementLocated(By.xpath("(//table)[2]//tbody/tr")),
+			                ExpectedConditions.visibilityOfElementLocated(
+			                        By.xpath("(//table)[2]//td[normalize-space()='No records to display']"))
+			        ));
+
+			        boolean noProductsAfterFilter = !driver.findElements(
+			                By.xpath("(//table)[2]//td[normalize-space()='No records to display']"))
+			                .isEmpty();
+
+			        if (!noProductsAfterFilter) {
+			            System.out.println("✅ Products found after filter. STOP.");
+			            return; // 🔥 DO NOT RETRY AGAIN
+			        }
+
+			        System.out.println("❌ No products even after filter. Retrying...");
+			    }
+			}
 
 
-		 while (true) {  
-
-	            wait.until(ExpectedConditions.visibilityOfElementLocated(
-	                    By.xpath("//table/tbody/tr")));
-
-	            WebElement pagesText = wait.until(ExpectedConditions.visibilityOfElementLocated(
-	                    By.xpath("//label[contains(text(),'of')]")));
-
-	            int totalPages = Integer.parseInt(pagesText.getText().replaceAll("\\D+", ""));
-	            int randomPage = random.nextInt(totalPages) + 1;
-
-	            for (int i = 1; i < randomPage; i++) {
-
-	                String firstRowBefore = driver.findElement(
-	                        By.xpath("//table/tbody/tr[1]")).getText();
-
-	                WebElement nextBtn = wait.until(ExpectedConditions.elementToBeClickable(
-	                        By.xpath("//button[@type='button' and @aria-label='Next']")));
-	                nextBtn.click();
-
-	                wait.until(ExpectedConditions.not(
-	                        ExpectedConditions.textToBePresentInElementLocated(
-	                                By.xpath("//table/tbody/tr[1]"), firstRowBefore)));
-
-	                wait.until(ExpectedConditions.visibilityOfElementLocated(
-	                        By.xpath("//table/tbody/tr")));
-	            }
-
-	            // Check for "No records to display"
-	            List<WebElement> noRecordsElements = driver.findElements(
-	                    By.xpath("//div[contains(text(),'No records to display')]"));
-
-	            if (noRecordsElements.size() > 0) {
-	                System.out.println("No products found on selected business. Clicking business selector again...");
-
-	                // Click business selector icon to allow re-selection
-	                wait.until(ExpectedConditions.elementToBeClickable(clickbusiness)).click();
-
-	                // Optionally, add a small wait or logic to pick another business here
-
-	                continue;  // Retry whole process
-	            }
-
-	            // Safe random row click with retry
-	            for (int attempt = 0; attempt < 3; attempt++) {
-	                try {
-	                    List<WebElement> rows = driver.findElements(
-	                            By.xpath("//table/tbody/tr"));
-
-	                    rows.get(random.nextInt(rows.size())).click();
-
-	                    System.out.println("Random Business Selected Successfully");
-	                    return; 
-
-	                } catch (StaleElementReferenceException e) {
-	                }
-	            }
-
-	            System.out.println("Failed to select random business row after retries.");
-	            break;
-	        }
-	    }
-	
-	    
-	
+//	 }
 		
-	
-/*		public void Businessfilteration() {
 		
-			WebElement textField = driver.findElement(By.xpath("//*[@id='desc_filterBarcell']"));
-			textField.click(); // Ensure the field is clicked and focused
-
-			textField.sendKeys("1971 Cafe");
-			textField.sendKeys(Keys.ENTER);
-
-			textField.click();
-
-}*/
 	
 /*	public void FOCOrderCreation() throws InterruptedException {
     Thread.sleep(2000);
 	driver.findElement(By.xpath("(//div[@class='fot-formControl']/div[@style='position: absolute; top: 5px; right: 4px;'])[2]")).click();
 	}*/
 	
-		public double selectProduct() {
-		    Random random = new Random();
-		    int minSelections = 5;
-		    int maxSelections = 15;
-		    int productsPerPage = 3;
+		public double selectProduct() throws InterruptedException {
 
-		    int numberOfSelections = random.nextInt((maxSelections - minSelections) + 1) + minSelections;
-//		    System.out.println("Number of products to be selected: " + numberOfSelections);
+			    Thread.sleep(4000);
 
-		    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-		    List<WebElement> products = driver.findElements(By.xpath("//table/tbody/tr/td/div/input"));
+			    Random random = new Random();
+			    int maxSelections = 4;
+			    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+			    JavascriptExecutor js = (JavascriptExecutor) driver;
 
-		    int totalProducts = products.size();
-		    int totalPages = (int) Math.ceil((double) totalProducts / productsPerPage);
-		    numberOfSelections = Math.min(numberOfSelections, totalProducts);
+			    int selectionsMade = 0;
+			    double prdGrsAMt = 0.0;
 
-		    // Fix: Return a valid double if not enough products are available
-		    if (minSelections > totalProducts) {
-		        System.out.println("Not enough products to make the minimum selections.Exiting.");
-		        return 0.0;
-		    }
+			    // Load products
+			    List<WebElement> products = driver.findElements(By.xpath("//table/tbody/tr"));
+			    if (products.isEmpty()) {
+			        System.out.println("No products available.");
+			        return 0.0;
+			    }
 
-		    Set<Integer> selectedIndices = new HashSet<>();
-		    int selectionsMade = 0;
-		    double prdGrsAMt = 0.0; // Initialize gross amount
+			    // -------- BUSINESS RULE --------
+			    int productCount = products.size();
+			    int allowedMaxSelections;
 
-		    for (int page = 1; page <= totalPages && selectionsMade < numberOfSelections; page++) {
-		        if (page > 1) {
-		            try {
-		                List<WebElement> nextButtons = driver.findElements(By.xpath("//div[@class='e-next e-icons e-icon-next e-nextpage e-pager-default']"));
-		                if (nextButtons.isEmpty()) {
-		                    break;
-		                }
+			    if (productCount == 1) {
+			        allowedMaxSelections = 1;
+			    } else if (productCount == 2) {
+			        allowedMaxSelections = 2;
+			    } else {
+			        allowedMaxSelections = maxSelections;
+			    }
 
-		                WebElement nextPageButton = nextButtons.get(0);
-		                Thread.sleep(1000);
+			    int numberOfSelections = random.nextInt(allowedMaxSelections) + 1;
 
-		                wait.until(ExpectedConditions.elementToBeClickable(nextPageButton));
+			    Set<Integer> pageSelected = new HashSet<>();
 
-		                if (nextPageButton.isEnabled()) {
-		                    ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageButton);
-		                    wait.until(ExpectedConditions.stalenessOf(products.get(0)));
-		                    products = driver.findElements(By.xpath("//table/tbody/tr/td/div/input"));
-		                } else {
-		                    System.out.println("Next button is disabled. No more pages available. Exiting.");
-		                    break;
-		                }
-		            } catch (Exception e) {
-		                System.out.println("Next button not found or an error occurred: " + e.getMessage());
-		                break;
-		            }
-		        }
+			    while (selectionsMade < numberOfSelections) {
 
-		        int startIndex = (page - 1) * productsPerPage;
-		        int endIndex = Math.min(startIndex + productsPerPage, totalProducts);
+			        products = driver.findElements(By.xpath("//table/tbody/tr"));
+			        if (products.isEmpty()) break;
 
-		        for (int i = startIndex; i < endIndex && selectionsMade < numberOfSelections; i++) {
-		            if (!selectedIndices.contains(i)) {
-		                try {
-		                    WebElement product = wait.until(ExpectedConditions.elementToBeClickable(products.get(i)));
+			        int remainingSelections = numberOfSelections - selectionsMade;
+			        int selectionsThisPage = Math.min(remainingSelections, products.size());
 
-		                    // Get the parent row for the product
-		                    WebElement parentRow = product.findElement(By.xpath("./ancestor::tr"));
-		                    String productGrossAmt = parentRow.findElement(By.xpath("./td[13]")).getText();
-		                    double prdVal = Double.parseDouble(productGrossAmt);
+			        while (pageSelected.size() < selectionsThisPage) {
 
-		                    prdGrsAMt += prdVal; // Accumulate total gross amount
+			            int randomIndex = random.nextInt(products.size());
+			            if (pageSelected.contains(randomIndex)) continue;
 
-		                    if (!product.isSelected()) {
-		                        product.click();
-		                        selectedIndices.add(i);
-		                        selectionsMade++;
-		                    }
-		                } catch (StaleElementReferenceException e) {
-		                    products = driver.findElements(By.xpath("//table/tbody/tr/td/div/input"));
-		                    WebElement product = wait.until(ExpectedConditions.elementToBeClickable(products.get(i)));
+			            WebElement row = products.get(randomIndex);
 
-		                    WebElement parentRow = product.findElement(By.xpath("./ancestor::tr"));
-		                    String productGrossAmt = parentRow.findElement(By.xpath("./td[13]")).getText();
-		                    double prdVal = Double.parseDouble(productGrossAmt);
+			            // -------- CHECKBOX (JS CLICK FIX) --------
+			            WebElement checkbox = wait.until(
+			                    ExpectedConditions.elementToBeClickable(
+			                            row.findElement(By.xpath(".//td[1]//input"))
+			                    )
+			            );
 
-		                    prdGrsAMt += prdVal; // Accumulate total gross amount
+			            if (!checkbox.isSelected()) {
+			                // Use JS click to avoid click issues
+			                js.executeScript("arguments[0].click();", checkbox);
+			            }
 
-		                    if (!product.isSelected()) {
-		                        product.click();
-		                        selectedIndices.add(i);
-		                        selectionsMade++;
-		                    }
-		                }
-		            }
-		        }
-		    }
+			            // -------- QTY --------
+			            WebElement qtyInput = row.findElement(
+			                    By.xpath(".//input[contains(@id,'input-numeric-field-qty')]")
+			            );
 
-		    System.out.println("Total no of products selected: " + selectionsMade);
-//		    System.out.println("Total Gross Amount: " + prdGrsAMt);
+			            int randomQty = random.nextInt(10) + 1;
 
-		    return prdGrsAMt; // Returning the total gross amount
-		}
-	
+			            qtyInput.sendKeys(Keys.CONTROL + "a");
+			            qtyInput.sendKeys(Keys.DELETE);
+			            qtyInput.sendKeys(String.valueOf(randomQty));
+
+			            js.executeScript("arguments[0].dispatchEvent(new Event('input',{bubbles:true}))", qtyInput);
+			            js.executeScript("arguments[0].dispatchEvent(new Event('change',{bubbles:true}))", qtyInput);
+			            js.executeScript("arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", qtyInput);
+			            js.executeScript("arguments[0].dispatchEvent(new Event('focusout', { bubbles: true }));", qtyInput);
+			            js.executeScript("document.activeElement.blur();");
+
+			            // -------- WAIT FOR GROSS CELL (ONLY VISIBILITY) --------
+			            By rowGrossLocator =
+			                    By.xpath("//table/tbody/tr[" + (randomIndex + 1) + "]/td[13]");
+
+			            wait.until(ExpectedConditions.visibilityOfElementLocated(rowGrossLocator));
+
+			            // -------- READ GROSS (0.00 IS ALLOWED) --------
+			            String grossText = driver.findElement(rowGrossLocator)
+			                    .getText()
+			                    .replace(",", "")
+			                    .replace("₹", "")
+			                    .trim();
+
+			            if (!grossText.isEmpty()) {
+			                prdGrsAMt += Double.parseDouble(grossText);
+			            }
+
+			            pageSelected.add(randomIndex);
+			            selectionsMade++;
+			        }
+
+			        // -------- NEXT PAGE --------
+			        List<WebElement> nextButtons = driver.findElements(
+			                By.xpath("//button[@aria-label='Next' and not(@disabled)]")
+			        );
+
+			        if (nextButtons.isEmpty()) break;
+
+			        String firstRowTextBefore = products.get(0).getText();
+			        js.executeScript("arguments[0].click();", nextButtons.get(0));
+
+			        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+			                By.xpath("//table/tbody/tr")
+			        ));
+			    }
+
+			    System.out.println("Total products selected: " + selectionsMade);
+			    System.out.println("Total Gross Amount: " + prdGrsAMt);
+
+			    return prdGrsAMt;
+			}
+
+
+		
 	public void Past_shippdate_date() throws InterruptedException {
 		driver.findElement(By.name("ship_dt")).click();
 
@@ -357,8 +467,8 @@ public class PlaceOrder {
 
 	public void Ship_Date_ErrorMessageValidation() throws InterruptedException {
 
-		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
-		reviewOrderButton.click();
+//		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
+//		reviewOrderButton.click();
 		Thread.sleep(1000);
 		
 		try {
@@ -405,60 +515,58 @@ public class PlaceOrder {
 				System.out.println("Status: Passed");
 				break;
 			}
+			Thread.sleep(2000);
+			
 		}
 	}
 
-	public void selectPaymentModeByIndex(int index) throws InterruptedException {
+	public void selectPaymentModeByIndex() throws InterruptedException {
+//		Thread.sleep(2000);
+//		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
+//		reviewOrderButton.click();
+//		Thread.sleep(1000);
+
+//		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
+//		okButton.click();
+
 		Thread.sleep(2000);
-		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
-		reviewOrderButton.click();
-		Thread.sleep(1000);
 
-		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
-		okButton.click();
+//		WebElement paymentDropdownField = driver.findElement(By.name("payment_method"));
 
-		Thread.sleep(1000);
+		try {
+		    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-		WebElement paymentDropdownField = driver.findElement(By.name("payment_method"));
+		    WebElement dropdownElement = wait.until(
+		            ExpectedConditions.elementToBeClickable(
+		                    By.name("payment_method")
+		            )
+		    );
 
-		WebElement dropdownElement = driver.findElement(By.name("payment_method"));
-		Select dropdown = new Select(dropdownElement);
+		    Select paymentDropdown = new Select(dropdownElement);
 
-		List<WebElement> options = dropdown.getOptions();
+		    paymentDropdown.selectByIndex(2);
 
-		List<String> excludedOptions = Arrays.asList("Payment Method", "Select");
+		    System.out.println("Payment method selected successfully");
+		    
+		    System.out.println(paymentDropdown.getFirstSelectedOption().getText());	
 
-		List<WebElement> validOptions = new ArrayList<>();
-		for (WebElement option : options) {
-			String optionText = option.getText().trim();
-			if (!excludedOptions.contains(optionText) && !optionText.isEmpty()) {
-				validOptions.add(option);
-			}
-		}
-
-		if (!validOptions.isEmpty()) {
-			System.out.println("Status failed: Procced without selecting payment terms(mandatory)");
-			dropdown.selectByVisibleText(validOptions.get(0).getText()); // Select first valid option
-			Thread.sleep(1000);
-
-			String selectedOption = dropdown.getFirstSelectedOption().getText();
-			System.out.println("Status Passed");
-		} else {
-			System.out.println("No valid payment methods available to select.");
+		} catch (Exception e) {
+		    e.printStackTrace();
 		}
 	}
-
+	
+	
 	public void Sel_billingAddr_And_ShiAddr_popupErrorValidation() throws InterruptedException {
-		Thread.sleep(2000);
-		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
-		reviewOrderButton.click();
-		Thread.sleep(2000);
+//		Thread.sleep(2000);
+//		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
+//		reviewOrderButton.click();
+//		Thread.sleep(2000);
 
-		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
-		okButton.click();
-		System.out.println("Status failed: Procced without selecting billing & shipping address(mandatory).");
+//		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
+//		okButton.click();
+//		System.out.println("Status failed: Procced without selecting billing & shipping address(mandatory).");
 
-		Thread.sleep(1000);
+		Thread.sleep(3000);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
 			WebElement billingAddressRadio = driver.findElement(By.name("billing_address"));
@@ -474,6 +582,8 @@ public class PlaceOrder {
 			System.out.println("Billing address selection error: " + e.getMessage());
 		}
 
+		Thread.sleep(2000);
+		
 		try {
 			WebElement shippingAddressRadio = driver.findElement(By.name("shipping_address"));
 
@@ -494,63 +604,107 @@ public class PlaceOrder {
 		Select dropdown = new Select(dropdownElement);
 
 		List<WebElement> options = dropdown.getOptions();
-		// List of options to exclude
-		List<String> excludedOptions = new ArrayList<>();
-		excludedOptions.add("Payment Method");
-		excludedOptions.add("Select");
 
-		List<WebElement> validOptions = new ArrayList<>();
-		for (WebElement option : options) {
-			String optionText = option.getText();
-			if (!excludedOptions.contains(optionText)) {
-				validOptions.add(option);
-			}
+		// Ensure there is more than one option
+		if (options.size() <= 1) {
+		    throw new RuntimeException("No drivers available to select");
 		}
 
-		for (WebElement option : options) {
-		}
+		// Random index EXCLUDING first option (index 0)
+		Random random = new Random();
+		int randomIndex = random.nextInt(options.size() - 1) + 1;
+
+		// Select random driver
+		dropdown.selectByIndex(randomIndex);
+
 		Thread.sleep(1000);
-
-		dropdown.selectByIndex(2);
 	}
 
 	
 	public void Lpo_Num_popupErrorValidation() throws InterruptedException {
-		Thread.sleep(1000);
-		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
-		reviewOrderButton.click();
+//		Thread.sleep(1000);
+//		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
+//		reviewOrderButton.click();
+//		Thread.sleep(1000);
+//
+//		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
+//		okButton.click();
+
 		Thread.sleep(1000);
 
-		WebElement okButton = driver.findElement(By.xpath("//button[text()='OK']"));
-		okButton.click();
-
-		Thread.sleep(1000);
+		WebElement LPONumberField = null;
 
 		try {
-			WebElement LPONumberField = driver.findElement(By.name("lpo_number"));
+		    LPONumberField = driver.findElement(By.name("lpo_number"));
 
-			if (LPONumberField.getAttribute("value").isEmpty()) {
-				System.out.println("Status failed: Procced without providing LPO Number reference in the order(mandatory).");
-				Thread.sleep(1000);
+		    if (LPONumberField.getAttribute("value").isEmpty()) {
+		        System.out.println(
+		            "Status failed: Proceed without providing LPO Number reference in the order (mandatory)."
+		        );
 
-				LPONumberField.sendKeys("05-march-2025");
-				Thread.sleep(1000);
+		        Thread.sleep(1000);
+		        LPONumberField.sendKeys("TEST");
+		        Thread.sleep(1000);
 
-				if (!LPONumberField.getAttribute("value").isEmpty()) {
-					System.out.println("Status Passed");
-				} else {
-					System.out.println("Test Case Failed: LPO Number is still empty.");
-				}
-			} else {
-				System.out.println(
-						"Status Passed: LPO Number is already filled - " + LPONumberField.getAttribute("value"));
-			}
+		        if (!LPONumberField.getAttribute("value").isEmpty()) {
+		            System.out.println("Status Passed");
+		        } else {
+		            System.out.println("Test Case Failed: LPO Number is still empty.");
+		        }
+		    } else {
+		        System.out.println(
+		            "Status Passed: LPO Number is already filled - " + LPONumberField.getAttribute("value")
+		        );
+		    }
+
 		} catch (Exception e) {
-			System.out.println("LPO Number field not found or an error occurred: " + e.getMessage());
+		    System.out.println("LPO Number field not found or an error occurred: " + e.getMessage());
 		}
+
+		// -------- CONTINUE FLOW --------
+
+		Thread.sleep(2000);
+
+		WebElement reviewOrderButton = driver.findElement(Reviewbutton);
+		reviewOrderButton.click();
+
+		Thread.sleep(2000);
+
+		driver.findElement(By.xpath("//button[text()='No']")).click();
+
+		// -------- FIXED CLEAR LOGIC STARTS HERE --------
+
+		WebElement LPONumberField1 = wait.until(
+		        ExpectedConditions.visibilityOfElementLocated(By.name("lpo_number"))
+		);
+
+		// Focus
+		LPONumberField1.click();
+
+		// Select all
+		LPONumberField1.sendKeys(Keys.CONTROL + "a");
+
+		// Backspace clears React input reliably
+		LPONumberField1.sendKeys(Keys.BACK_SPACE);
+
+		// 🔑 Force React to register input change
+		((JavascriptExecutor) driver).executeScript(
+		        "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));",
+		        LPONumberField1
+		);
+
+		// -------- ENTER NEW VALUE --------
+
+		String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+		String lpoNum = "Test" + timestamp;
+		LPONumberField1.sendKeys(lpoNum);
+
+		// Optional verification (safe)
+		System.out.println("Final LPO Value: " + LPONumberField1.getAttribute("value"));
+
 	}
 	
-	
+
 	public void validateTotalAmount(double prdValu) throws InterruptedException {
 		Thread.sleep(1000);
 
@@ -562,7 +716,7 @@ public class PlaceOrder {
 
 		// Fetch all selected products
 		List<WebElement> products = driver
-				.findElements(By.xpath("/html/body/div[4]/div[3]/div[2]/div[2]/table/thead/tr[6]/td[2]")); 
+				.findElements(By.xpath("(//td[@class='text-right details bold' and @style='padding-top: 0.25rem; padding-bottom: 0.25rem;'])[4]")); 
 		WebElement product = products.get(0);
 
 		// Retrieve the value (text) of the product
@@ -579,6 +733,8 @@ public class PlaceOrder {
 		}
 		
 	}
+	
+	
 	public void clicplaceorderbutton() {
 		driver.findElement(By.xpath("//button[text()='Place Order']")).click();
 		driver.findElement(By.xpath("//button[text()='No']")).click();

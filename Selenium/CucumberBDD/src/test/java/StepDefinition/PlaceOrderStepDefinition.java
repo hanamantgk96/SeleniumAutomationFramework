@@ -14,69 +14,88 @@ public class PlaceOrderStepDefinition {
 		this.testsetup = testSetup;
 	}
 	
-	@Given("Navigate to place order page")
-	public void navigate_to_place_order_page() throws InterruptedException {
-		PlaceOrder order = testsetup.pageObjectManager.getPlaceOrder();
-	    order.clickgrid();
+	@Given("the user navigates to the Place Order page")
+	public void the_user_navigates_to_the_place_order_page() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
+	    Order.clickgrid();
 	    Thread.sleep(1000);
-	    order.clickorderoption();
+	    Order.clickorderoption();
 	    Thread.sleep(1000);
-	    order.clickplaceorder();
+	    Order.clickplaceorder();
 	    Thread.sleep(2000);
-	    order.clickbusinessfield();
+	    Order.clickbusinessfield();
 	    Thread.sleep(10000);
-	    order.validatePagination();
-	    Thread.sleep(1000);
-		order.selectbusinessrandomaly1();
-	    Thread.sleep(2000);
 //	    order.Businessfilteration();
 //	    order.FOCOrderCreation();
+	    
 	}
 
-	@When("Validate if the products are selected by clicking the Review order button and valiadte the error message")
-	public void validate_if_the_products_are_selected_by_clicking_the_review_order_button_and_valiadte_the_error_message() throws InterruptedException {
-		PlaceOrder order = testsetup.pageObjectManager.getPlaceOrder();
-		// Get the accumulated amount from the getTotalAmount method
-		  prdValu = order.selectProduct();
+	@When("pagination is validated for business selection")
+	public void pagination_is_validated_for_business_selection() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
+		 Order.validatePagination();
+		    Thread.sleep(1000);	    
 	}
 
-	@Then("Validate if shipping date is provided by clicking the Review orders button and validate the error message")
-	public void validate_if_shipping_date_is_provided_by_clicking_the_review_orders_button_and_validate_the_error_message() throws InterruptedException {
-		PlaceOrder order = testsetup.pageObjectManager.getPlaceOrder();
-		Thread.sleep(2000);
-		order.Past_shippdate_date();
-		Thread.sleep(2000);
-		order.Ship_Date_ErrorMessageValidation();
-		
+	@Then("the user selects a random business; if a product does not exist, the user selects another business")
+	public void the_user_selects_a_random_business_if_a_product_does_not_exist_the_user_selects_another_business() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
+		Order.selectbusinessrandomaly1();
+	    Thread.sleep(2000);
 	}
 
-	@Then("Validate if the Lpo number is provided by clicking the Review order button and validate the popup message")
-	public void validate_if_the_lpo_number_is_provided_by_clicking_the_review_order_button_and_validate_the_popup_message() throws InterruptedException {
-		PlaceOrder order = testsetup.pageObjectManager.getPlaceOrder();
+	@Then("the user selects random products from the list and enters random prices")
+	public void the_user_selects_random_products_from_the_list_and_enters_random_prices() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
 		Thread.sleep(2000);
-		order.Lpo_Num_popupErrorValidation();
+		  prdValu = Order.selectProduct();
 	}
 
-	@Then("Validate if a payment method is selected by clicking the Review order button and capture the message")
-	public void validate_if_a_payment_method_is_selected_by_clicking_the_review_order_button_and_capture_the_message() throws InterruptedException {
-		PlaceOrder order = testsetup.pageObjectManager.getPlaceOrder();
-		order.selectPaymentModeByIndex(0);
+	@Then("the user selects the payment method and delivery user")
+	public void the_user_selects_the_payment_method_and_delivery_user() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
+		Order.selectPaymentModeByIndex();
 		Thread.sleep(2000);
-		order.Sel_billingAddr_And_ShiAddr_popupErrorValidation();
+		Order.selectByDriver();
 	}
 
-	@Then("Validate the if a billing address by clicking the Review order button and validate the popup message")
-	public void validate_the_if_a_billing_address_by_clicking_the_review_order_button_and_validate_the_popup_message() throws InterruptedException {
-		PlaceOrder order = testsetup.pageObjectManager.getPlaceOrder();
-//		order.driverclose();	
-		order.selectByDriver();
-		
-		order.validateTotalAmount(prdValu);
+	@Then("the shipping date is validated")
+	public void the_shipping_date_is_validated() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
 		Thread.sleep(2000);
-		order.clicplaceorderbutton();
+		Order.Past_shippdate_date();
+		Thread.sleep(2000);
+		Order.Ship_Date_ErrorMessageValidation();
+	   
 	}
-	public double getTotalAmount() {
-	    return prdValu;  // Return the accumulated gross amount
+
+	@Then("the user selects the billing address and shipping address")
+	public void the_user_selects_the_billing_address_and_shipping_address() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
+		Thread.sleep(2000);
+		Order.Sel_billingAddr_And_ShiAddr_popupErrorValidation();
+	   
+	}
+
+	@Then("the LPO number is validated")
+	public void the_lpo_number_is_validated() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder(); 
+		Thread.sleep(2000);
+		Order.Lpo_Num_popupErrorValidation();
 	}
 	
-}
+	
+	@Then("Click the Review button and validate the total Amount of the Order")
+	public void click_the_review_button_and_validate_the_total_amount_of_the_order() throws InterruptedException {
+		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
+		Order.validateTotalAmount(prdValu);
+		Thread.sleep(2000);
+		Order.clicplaceorderbutton();
+	}
+	public double getTotalAmount() {
+	    return prdValu;  
+	}
+	   
+	}	
+	
+
