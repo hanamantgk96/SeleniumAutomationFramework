@@ -1,11 +1,16 @@
 package PageObjects;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
 
 import utils.PageObjectUtils;
 
@@ -23,7 +28,6 @@ public class ProcessingOrdersPage {
 	private By processingOrderId = By.xpath("//div[@class='custom-grid-body']/table/tbody/tr[1]/td[1]/span[1]");
 
 	private By transformationTypeDropdown = By.name("transformationType");
-//    private By hubDropdown = By.xpath("//div[@class='proOrder-details-cont primarypdt-right-box']//div[3]//div[1]//div[1]//select[1]");
 	private By hubDropdown = By.xpath("//div[@class='proOrder-inputs'][2]/div/div/select");
 
 	private By subCategoryField = By.xpath("//div[@class='proOrder-details-cont primarypdt-right-box']//div[4]");
@@ -71,7 +75,10 @@ public class ProcessingOrdersPage {
 	private By selectedWastage = By.name("wastePdtId");
 	private By actualYieldInput = By.name("processActualYield");
 	private By transformedProductField2 = By.xpath("//div[@class='proOrder-inputs transform-proOrder-text']//input[@class='fot-formControl empty empty']");
-	private By wasteActualYieldInUnits = By.name("wasteActualYieldInUnits");	/* ================== Constructor ================== */
+	private By wasteActualYieldInUnits = By.name("wasteActualYieldInUnits");
+	private By verifyAndApproveOption = By.xpath("//a[text()=' Verify & Approve ']");
+    private By approveButton = By.xpath("//button[text()='Approve']");	
+	/* ================== Constructor ================== */
 
 	public ProcessingOrdersPage(WebDriver driver) {
 		this.driver = driver;
@@ -179,6 +186,13 @@ public class ProcessingOrdersPage {
 		driver.findElement(searchInputField).sendKeys(Keys.ENTER);
 		utils.selectByText(gridListRows, product);
 //		utils.waitForLoaderToDisappear(loader);
+	}
+	public void selectChangedPrimaryProductFromGrid(String product) {
+		driver.findElement(productField).click();
+		driver.findElement(subCategoryFilterIcon).click();
+		driver.findElement(searchInputField).sendKeys(product);
+		driver.findElement(searchInputField).sendKeys(Keys.ENTER);
+		utils.selectByText(gridListRows, product);
 	}
 
 	public String getSecondaryProductName() {
@@ -377,4 +391,34 @@ public class ProcessingOrdersPage {
 //                "Request Quantity cannot be empty!");
 //        utils.clearAndType(requestedQuantityInput, quantity);
 	}
+
+	public void clickVerifyAndApproveOption() {
+		utils.click(verifyAndApproveOption);
+//		driver.findElement(verifyAndApproveOption).click();
+		
+		
+	}
+
+	public void clickApproveButton() {
+	driver.findElement(approveButton).click();
+		
+	}
+	
+//	public Set<String> getSecondarySellerSet() {
+//		Select secondarySellerDropdown =
+//	          new Select(driver.findElement(sellerDropdown));
+//		Set<String> secondarySeller  = secondarySellerDropdown.getOptions()
+//				.stream().map(e->e.getText())
+//				.collect(Collectors.toSet());
+//		return secondarySeller;  
+//		
+//	}
+	public List<String> getPrimarySellerList() {
+		Select primarySellerDropdown =  new Select (driver.findElement(sourceSellerDropdown));
+		List<String> primarySeller  = primarySellerDropdown.getOptions()
+				.stream().map(e->e.getText())
+				.collect(Collectors.toList());
+		return primarySeller;
+		
+}
 }
