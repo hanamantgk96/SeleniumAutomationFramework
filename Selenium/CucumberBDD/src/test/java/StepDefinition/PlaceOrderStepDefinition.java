@@ -90,7 +90,7 @@ public class PlaceOrderStepDefinition {
 		PlaceOrder Order = testsetup.pageObjectManager.getPlaceOrder();
 		Order.validateTotalAmount(prdValu);
 		Thread.sleep(2000);
-		Order.clicplaceorderbutton();
+		Order.clickplaceorderbutton();
 	}
 	public double getTotalAmount() {
 	    return prdValu;  

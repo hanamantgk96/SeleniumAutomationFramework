@@ -11,6 +11,7 @@ public class objectManager {
 	public Placeorder placeorder;
 	public OrderCompilation orderCompilation;
 	public DeliveryModule deliveryModule;
+	public StockModule stockModule;
 
 	public objectManager(WebDriver driver) {
 		this.driver = driver;
@@ -25,6 +26,12 @@ public class objectManager {
 		Lpopage = new Lpopage(driver);
 		return Lpopage;
 	}
+	
+	public StockModule getstockModule() {
+		stockModule = new StockModule(driver);
+		return stockModule;
+	}
+	
 
 	public Placeorder getplaceorder() {
 		placeorder = new Placeorder(driver);
